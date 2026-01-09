@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: stronger-app
+    ports:
+      - "8081:8081" # Metro Bundler
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - REACT_NATIVE_PACKAGER_HOSTNAME=localhost
+    tty: true
+    stdin_open: true
+    command: tail -f /dev/null

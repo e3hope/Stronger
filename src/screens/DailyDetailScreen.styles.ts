@@ -1,0 +1,157 @@
+import { StyleSheet } from 'react-native';
+
+export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#121212',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#333',
+    backgroundColor: '#1E1E1E',
+  },
+  headerTitle: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginHorizontal: 10,
+  },
+  dateSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconButton: {
+    padding: 8,
+  },
+  content: {
+    flex: 1,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    padding: 16,
+    gap: 12,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: '#1E1E1E',
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#333',
+    alignItems: 'center',
+  },
+  statLabel: {
+    color: '#888',
+    fontSize: 10,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  statValue: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  statUnit: {
+    fontSize: 12,
+    fontWeight: 'normal',
+    color: '#666',
+  },
+  tableHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingBottom: 8,
+    marginBottom: 8,
+  },
+  tableHeaderTitle: {
+    color: '#888',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  tableHeaderStats: {
+    flexDirection: 'row',
+    gap: 16,
+    paddingRight: 10,
+  },
+  tableHeaderStat: {
+    color: '#888',
+    fontSize: 10,
+    fontWeight: 'bold',
+    width: 40,
+    textAlign: 'center',
+  },
+  exerciseList: {
+    paddingHorizontal: 16,
+    paddingBottom: 40,
+  },
+  exerciseCard: {
+    backgroundColor: '#1E1E1E',
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  exerciseInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  exerciseIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  exerciseText: {
+    flex: 1,
+  },
+  exerciseName: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  exerciseMeta: {
+    color: '#666',
+    fontSize: 10,
+    marginTop: 2,
+  },
+  exerciseStats: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  statBox: {
+    width: 44,
+    height: 44,
+    backgroundColor: '#152b26',
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  statBoxLabel: {
+    position: 'absolute',
+    top: 4,
+    fontSize: 8,
+    color: '#666',
+    fontWeight: 'bold',
+  },
+  statBoxValue: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginTop: 8,
+  },
+});
