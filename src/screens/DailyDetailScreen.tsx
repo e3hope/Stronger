@@ -14,14 +14,7 @@ export default function DailyDetailScreen({ workout, onBack }: DailyDetailScreen
 
   const dateStr = new Date(workout.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-  // Mock data for the example since WorkoutLog exercises might need mapping
-  // In a real app, this would come from workout.exercises
-  const mockExercises = [
-    { name: 'Barbell Squat', target: 'Legs', type: 'Compound', sets: 3, kg: 100, reps: 5 },
-    { name: 'Bench Press', target: 'Chest', type: 'Compound', sets: 4, kg: 80, reps: 8 },
-    { name: 'Deadlift', target: 'Back', type: 'Compound', sets: 3, kg: 120, reps: 3 },
-    { name: 'Overhead Press', target: 'Shoulders', type: 'Compound', sets: 3, kg: 45, reps: 8 },
-  ];
+  // Mock data removed
 
   return (
     <View style={styles.container}>
@@ -50,17 +43,31 @@ export default function DailyDetailScreen({ workout, onBack }: DailyDetailScreen
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>VOLUME</Text>
             <Text style={styles.statValue}>
-              {workout.volume?.toLocaleString()} <Text style={styles.statUnit}>kg</Text>
+              {workout.volume ? (
+                <>
+                  {workout.volume.toLocaleString()} <Text style={styles.statUnit}>kg</Text>
+                </>
+              ) : (
+                <Text style={styles.statValue}>-</Text>
+              )}
             </Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>SETS</Text>
-            <Text style={styles.statValue}>14</Text>
+            <Text style={styles.statValue}>
+              {workout.exercises.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0)}
+            </Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>DURATION</Text>
             <Text style={styles.statValue}>
-              {workout.duration} <Text style={styles.statUnit}>m</Text>
+              {workout.duration ? (
+                <>
+                  {workout.duration} <Text style={styles.statUnit}>m</Text>
+                </>
+              ) : (
+                <Text style={styles.statValue}>-</Text>
+              )}
             </Text>
           </View>
         </View>
@@ -77,7 +84,7 @@ export default function DailyDetailScreen({ workout, onBack }: DailyDetailScreen
 
         {/* Exercise List */}
         <View style={styles.exerciseList}>
-          {mockExercises.map((item, i) => (
+          {workout.exercises.map((item, i) => (
             <View key={i} style={styles.exerciseCard}>
               <View style={styles.exerciseInfo}>
                 <View style={styles.exerciseIcon}>
@@ -85,23 +92,25 @@ export default function DailyDetailScreen({ workout, onBack }: DailyDetailScreen
                 </View>
                 <View style={styles.exerciseText}>
                   <Text style={styles.exerciseName}>{item.name}</Text>
-                  <Text style={styles.exerciseMeta}>{item.target} • {item.type}</Text>
+                  <Text style={styles.exerciseMeta}>{item.category || 'General'} • {item.type || 'Exercise'}</Text>
                 </View>
               </View>
               
-              <View style={styles.exerciseStats}>
-                <View style={styles.statBox}>
-                  <Text style={styles.statBoxLabel}>SET</Text>
-                  <Text style={styles.statBoxValue}>{item.sets}</Text>
-                </View>
-                <View style={styles.statBox}>
-                  <Text style={styles.statBoxLabel}>KG</Text>
-                  <Text style={styles.statBoxValue}>{item.kg}</Text>
-                </View>
-                <View style={styles.statBox}>
-                  <Text style={styles.statBoxLabel}>REP</Text>
-                  <Text style={styles.statBoxValue}>{item.reps}</Text>
-                </View>
+              {/* Sets List */}
+              <View style={styles.setListContainer}>
+                {item.sets && item.sets.map((set, j) => (
+                  <View key={j} style={styles.setRow}>
+                    <View style={styles.setIndexBox}>
+                      <Text style={styles.setIndexText}>{j + 1}</Text>
+                    </View>
+                    <View style={styles.setValueBox}>
+                      <Text style={styles.setValueText}>{set.weight} <Text style={styles.setValueLabel}>kg</Text></Text>
+                    </View>
+                    <View style={styles.setValueBox}>
+                      <Text style={styles.setValueText}>{set.reps} <Text style={styles.setValueLabel}>reps</Text></Text>
+                    </View>
+                  </View>
+                ))}
               </View>
             </View>
           ))}

@@ -1,14 +1,34 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList, Alert } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useWorkout } from '../context/WorkoutContext';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { supabase } from '../lib/supabase';
 import { styles } from './CalendarScreen.styles';
 
 export default function CalendarScreen() {
-  const { workouts } = useWorkout();
+  const { workouts, routines, addPlannedWorkout } = useWorkout();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleLogout = () => {
+    console.log('Logout button pressed');
+    Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '로그아웃',
+        style: 'destructive',
+        onPress: async () => {
+          console.log('Signing out...');
+          const { error } = await supabase.auth.signOut();
+          if (error) console.error('Sign out error:', error);
+          router.replace('/');
+        },
+      },
+    ]);
+  };
 
   const markedDates = workouts.reduce((acc, workout) => {
     const date = workout.date.split('T')[0];
@@ -28,8 +48,23 @@ export default function CalendarScreen() {
     w => w.date.split('T')[0] === selectedDate
   );
 
+  const handleAddRoutine = () => {
+    setModalVisible(true);
+  };
+
+  const selectRoutine = async (routineId: number) => {
+    await addPlannedWorkout(selectedDate, routineId);
+    setModalVisible(false);
+  };
+
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Stronger</Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
       <Calendar
         onDayPress={(day: any) => setSelectedDate(day.dateString)}
         markedDates={markedDates}
@@ -75,7 +110,46 @@ export default function CalendarScreen() {
             <Text style={styles.emptyText}>운동 기록이 없습니다.</Text>
           )
         )}
+
+        {selectedDate ? (
+          <TouchableOpacity style={styles.addButton} onPress={handleAddRoutine}>
+            <Ionicons name="add-circle" size={24} color="white" />
+            <Text style={styles.addButtonText}>루틴 추가하기</Text>
+          </TouchableOpacity>
+        ) : null}
       </ScrollView>
+
+      {/* Routine Selection Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>루틴 선택</Text>
+            <FlatList
+              data={routines}
+              keyExtractor={item => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity 
+                  style={styles.modalItem}
+                  onPress={() => selectRoutine(item.id)}
+                >
+                  <Text style={styles.modalItemText}>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity 
+              style={styles.closeButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>닫기</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

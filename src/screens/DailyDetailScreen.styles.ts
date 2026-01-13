@@ -94,17 +94,13 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 12,
     marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
     borderWidth: 1,
     borderColor: '#333',
   },
   exerciseInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
-    marginRight: 8,
+    marginBottom: 12, // 세트 리스트와 간격
   },
   exerciseIcon: {
     width: 40,
@@ -128,30 +124,38 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 2,
   },
-  exerciseStats: {
+  setListContainer: {
+    marginTop: 4,
+  },
+  setRow: {
     flexDirection: 'row',
-    gap: 8,
-  },
-  statBox: {
-    width: 44,
-    height: 44,
-    backgroundColor: '#152b26',
-    borderRadius: 8,
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#333',
   },
-  statBoxLabel: {
-    position: 'absolute',
-    top: 4,
-    fontSize: 8,
-    color: '#666',
+  setIndexBox: {
+    width: 30,
+    alignItems: 'center',
+  },
+  setIndexText: {
+    color: '#888',
+    fontSize: 12,
     fontWeight: 'bold',
   },
-  statBoxValue: {
+  setValueBox: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  setValueText: {
     color: 'white',
     fontSize: 14,
     fontWeight: 'bold',
-    marginTop: 8,
+  },
+  setValueLabel: {
+    color: '#666',
+    fontSize: 10,
+    marginLeft: 4,
   },
 });

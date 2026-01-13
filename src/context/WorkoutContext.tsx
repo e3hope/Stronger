@@ -9,6 +9,8 @@ interface WorkoutContextType {
   loading: boolean;
   saveRoutine: (routine: Routine) => Promise<void>;
   addWorkout: (workout: WorkoutLog) => Promise<void>;
+  updateWorkoutLog: (workout: WorkoutLog) => Promise<void>;
+  addPlannedWorkout: (date: string, routineId: number) => Promise<void>;
   refreshData: () => Promise<void>;
 }
 
@@ -188,8 +190,57 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateWorkoutLog = async (workout: WorkoutLog) => {
+    try {
+      if (!publicUserId) {
+        Alert.alert('Error', '로그인이 필요합니다.');
+        return;
+      }
+
+      const { error } = await supabase.from('workout_logs').update({
+        performed_at: workout.date,
+        exercises_log: workout.exercises,
+        updated_at: new Date().toISOString()
+      }).eq('id', workout.id);
+
+      if (error) throw error;
+      await fetchData();
+    } catch (error) {
+      console.error('Error updating workout:', error);
+      Alert.alert('Error', 'Failed to update workout');
+    }
+  };
+
+  const addPlannedWorkout = async (date: string, routineId: number) => {
+    try {
+      if (!publicUserId) {
+        Alert.alert('Error', '로그인이 필요합니다.');
+        return;
+      }
+
+      const routine = routines.find(r => r.id === routineId);
+      if (!routine) {
+        Alert.alert('Error', 'Routine not found');
+        return;
+      }
+
+      const { error } = await supabase.from('workout_logs').insert({
+        user_id: publicUserId,
+        routine_id: routineId,
+        performed_at: date,
+        exercises_log: routine.exercises
+      });
+
+      if (error) throw error;
+      await fetchData();
+    } catch (error) {
+      console.error('Error adding planned workout:', error);
+      Alert.alert('Error', 'Failed to add planned workout');
+    }
+  };
+
   return (
-    <WorkoutContext.Provider value={{ routines, workouts, loading, saveRoutine, addWorkout, refreshData: fetchData }}>
+    <WorkoutContext.Provider value={{ routines, workouts, loading, saveRoutine, addWorkout, updateWorkoutLog, addPlannedWorkout, refreshData: fetchData }}>
       {children}
     </WorkoutContext.Provider>
   );
