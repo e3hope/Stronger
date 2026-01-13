@@ -9,7 +9,7 @@ export default function DailyDetailRoute() {
   const { workouts } = useWorkout();
   
   // id가 workout.id라고 가정하고 찾기
-  const workout = workouts.find(w => w.id === id) || null;
+  const workout = workouts.find(w => w.id === Number(id)) || null;
 
   return (
     <DailyDetailScreen 

@@ -14,7 +14,8 @@ export interface Exercise {
 }
 
 export interface User {
-  id: string;
+  id: number; // Serial
+  auth_id: string; // UUID
   language_setting: string;
   created_at: string;
   updated_at: string;
@@ -22,7 +23,7 @@ export interface User {
 
 export interface Routine {
   id: number; // Integer (Serial)
-  user_id?: string; // UUID
+  user_id?: number; // Integer FK
   name: string;
   exercises: Exercise[]; // Mapped from exercises_detail (JSONB)
   tags?: string[]; // UI only
@@ -31,7 +32,7 @@ export interface Routine {
 
 export interface WorkoutLog {
   id: number; // Integer (Serial)
-  user_id?: string; // UUID
+  user_id?: number; // Integer FK
   routine_id?: number | null; // Integer FK
   routineName?: string; // UI convenience
   date: string; // performed_at

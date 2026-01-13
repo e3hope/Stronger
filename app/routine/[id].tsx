@@ -12,7 +12,7 @@ export default function RoutineDetailRoute() {
   // 새 루틴(id='new')인 경우 null 전달, 아니면 id로 찾기
   const routine = id === 'new' 
     ? null 
-    : routines.find(r => r.id === id) || null;
+    : routines.find(r => r.id === Number(id)) || null;
 
   const handleSave = (updatedRoutine: Routine) => {
     saveRoutine(updatedRoutine);

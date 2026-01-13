@@ -18,6 +18,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [workouts, setWorkouts] = useState<WorkoutLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [publicUserId, setPublicUserId] = useState<number | null>(null);
 
   // 데이터 불러오기
   const fetchData = async () => {
@@ -29,6 +30,42 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         // 로그인 안 된 경우 빈 데이터
         setRoutines([]);
         setWorkouts([]);
+        setPublicUserId(null);
+        setLoading(false);
+        return;
+      }
+
+      // 0. Ensure public user exists and get integer ID
+      let currentPublicUserId: number | null = null;
+      
+      const { data: existingUser, error: findError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('auth_id', user.id)
+        .maybeSingle();
+
+      if (existingUser) {
+        currentPublicUserId = existingUser.id;
+      } else {
+        // Create user if not exists
+        const { data: newUser, error: createError } = await supabase
+          .from('users')
+          .insert({ auth_id: user.id })
+          .select('id')
+          .single();
+        
+        if (createError) {
+          console.error('Error creating user:', createError);
+          // throw createError; // Handle gracefully?
+        } else {
+          currentPublicUserId = newUser.id;
+        }
+      }
+
+      setPublicUserId(currentPublicUserId);
+
+      if (!currentPublicUserId) {
+        console.error('Failed to resolve public user ID');
         setLoading(false);
         return;
       }
@@ -97,17 +134,17 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   const saveRoutine = async (routine: Routine) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        Alert.alert('Error', '로그인이 필요합니다.');
+      if (!user || !publicUserId) {
+        Alert.alert('Error', '로그인이 필요하거나 사용자 정보를 불러올 수 없습니다.');
         return;
       }
 
       // ID가 0이거나 음수이면 새 루틴으로 간주
-      const isNew = !routine.id || routine.id < 0 || typeof routine.id === 'string';
+      const isNew = !routine.id || routine.id < 0;
 
       if (isNew) {
         const { error } = await supabase.from('routines').insert({
-          user_id: user.id,
+          user_id: publicUserId, // Use Integer ID
           name: routine.name,
           exercises_detail: routine.exercises
         });
@@ -131,13 +168,13 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   const addWorkout = async (workout: WorkoutLog) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        Alert.alert('Error', '로그인이 필요합니다.');
+      if (!user || !publicUserId) {
+        Alert.alert('Error', '로그인이 필요하거나 사용자 정보를 불러올 수 없습니다.');
         return;
       }
 
       const { error } = await supabase.from('workout_logs').insert({
-        user_id: user.id,
+        user_id: publicUserId, // Use Integer ID
         routine_id: workout.routine_id || null,
         performed_at: workout.date,
         exercises_log: workout.exercises
