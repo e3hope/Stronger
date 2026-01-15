@@ -7,15 +7,30 @@ import { styles } from './LoginScreen.styles';
 export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   async function signUpWithEmail() {
     if (loading) return;
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
+    const trimmedPasswordConfirm = passwordConfirm.trim();
+
+    if (!trimmedEmail || !trimmedPassword) {
+      Alert.alert('오류', '이메일과 비밀번호를 입력해 주세요.');
+      return;
+    }
+
+    if (trimmedPassword !== trimmedPasswordConfirm) {
+      Alert.alert('오류', '비밀번호가 서로 일치하지 않습니다.');
+      return;
+    }
+
     setLoading(true);
     const { error } = await supabase.auth.signUp({
-      email: email.trim(),
-      password: password.trim(),
+      email: trimmedEmail,
+      password: trimmedPassword,
     });
     setLoading(false);
 
@@ -51,6 +66,15 @@ export default function Register() {
           secureTextEntry
           onChangeText={setPassword}
           value={password}
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Confirm Password"
+          placeholderTextColor="#888"
+          secureTextEntry
+          onChangeText={setPasswordConfirm}
+          value={passwordConfirm}
           autoCapitalize="none"
         />
       </View>
