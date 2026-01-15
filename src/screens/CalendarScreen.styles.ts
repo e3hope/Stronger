@@ -17,9 +17,6 @@ export const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
   },
-  logoutButton: {
-    padding: 8,
-  },
   workoutList: {
     flex: 1,
     padding: 20,

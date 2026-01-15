@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Modal, FlatList } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Routine, Exercise } from '../types';
 import { styles } from './RoutineDetailScreen.styles';
@@ -14,7 +14,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
   const [name, setName] = useState(routine?.name || '');
   const [exercises, setExercises] = useState<Exercise[]>(routine?.exercises || []);
   const [tags, setTags] = useState<string[]>(routine?.tags || []);
-
+  
   const handleAddExercise = () => {
     const newEx: Exercise = {
       id: Math.random().toString(36).substr(2, 9),
@@ -28,18 +28,6 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
 
   const updateExercise = (id: string, updates: Partial<Exercise>) => {
     setExercises(exercises.map(ex => ex.id === id ? { ...ex, ...updates } : ex));
-  };
-
-  const addSet = (exId: string) => {
-    setExercises(exercises.map(ex => {
-      if (ex.id === exId) {
-        return {
-          ...ex,
-          sets: [...ex.sets, { id: Math.random().toString(36).substr(2, 9), weight: 0, reps: 0 }]
-        };
-      }
-      return ex;
-    }));
   };
 
   const removeSet = (exId: string, setId: string) => {
@@ -60,6 +48,69 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
         return {
           ...ex,
           sets: ex.sets.map(s => s.id === setId ? { ...s, ...updates } : s)
+        };
+      }
+      return ex;
+    }));
+  };
+
+  const handleSetInputChange = (exId: string, setId: string, field: 'weight' | 'reps', text: string) => {
+    // Allow empty string to let user clear the input
+    if (text === '') {
+      updateSet(exId, setId, { [field]: 0 });
+      return;
+    }
+    
+    const val = Number(text);
+    if (!isNaN(val)) {
+      updateSet(exId, setId, { [field]: val });
+    }
+  };
+
+  const updateSetCount = (exId: string, count: number) => {
+    if (isNaN(count) || count < 0) return;
+    
+    setExercises(exercises.map(ex => {
+      if (ex.id === exId) {
+        const currentCount = ex.sets.length;
+        let newSets = [...ex.sets];
+        
+        if (count > currentCount) {
+          // Add sets
+          for (let i = 0; i < count - currentCount; i++) {
+            const lastSet = newSets.length > 0 ? newSets[newSets.length - 1] : { weight: 0, reps: 0 };
+            newSets.push({
+              id: Math.random().toString(36).substr(2, 9),
+              weight: lastSet.weight,
+              reps: lastSet.reps
+            });
+          }
+        } else if (count < currentCount) {
+          // Remove sets from the end
+          newSets = newSets.slice(0, count);
+        }
+        
+        return { ...ex, sets: newSets };
+      }
+      return ex;
+    }));
+  };
+
+  const syncSetValues = (exId: string) => {
+    setExercises(exercises.map(ex => {
+      if (ex.id === exId) {
+        if (ex.sets.length === 0) return ex;
+        
+        // Use the first set as the source
+        const sourceSet = ex.sets[0];
+        
+        return {
+          ...ex,
+          sets: ex.sets.map((s, index) => {
+            // Skip the first set (it's the source)
+            if (index === 0) return s;
+            return { ...s, weight: sourceSet.weight, reps: sourceSet.reps };
+          })
         };
       }
       return ex;
@@ -111,9 +162,6 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
                 <Text style={styles.tagText}>{tag}</Text>
               </View>
             ))}
-            <TouchableOpacity style={styles.addTagButton}>
-              <Ionicons name="add" size={20} color="#666" />
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -143,43 +191,59 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
 
               <View style={styles.setsContainer}>
                 <View style={styles.setHeaderRow}>
-                  <Text style={[styles.setHeaderText, { width: 30 }]}>SET</Text>
+                  <Text style={[styles.setHeaderText, { width: 100 }]}>SET</Text>
                   <Text style={[styles.setHeaderText, { flex: 1 }]}>KG</Text>
                   <Text style={[styles.setHeaderText, { flex: 1 }]}>REPS</Text>
                   <View style={{ width: 30 }} />
                 </View>
                 {ex.sets.map((set, idx) => (
                   <View key={set.id} style={styles.setRow}>
-                    <Text style={[styles.setNumber, { width: 30 }]}>{idx + 1}</Text>
+                    <View style={{ width: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                      {idx === 0 ? (
+                        <View style={styles.setControlContainer}>
+                          <TouchableOpacity 
+                            style={styles.setControlButton}
+                            onPress={() => updateSetCount(ex.id, Math.max(1, ex.sets.length - 1))}
+                          >
+                            <Ionicons name="remove" size={16} color="white" />
+                          </TouchableOpacity>
+                          <Text style={styles.setCountText}>{ex.sets.length}</Text>
+                          <TouchableOpacity 
+                            style={styles.setControlButton}
+                            onPress={() => updateSetCount(ex.id, ex.sets.length + 1)}
+                          >
+                            <Ionicons name="add" size={16} color="white" />
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        <Text style={styles.setNumber}>{idx + 1}</Text>
+                      )}
+                    </View>
                     <TextInput
-                      style={[styles.setInput, { flex: 1 }]}
+                      style={[styles.setInput, { flex: 1, marginLeft: 8 }]} 
                       keyboardType="numeric"
-                      value={set.weight.toString()}
-                      onChangeText={(text) => updateSet(ex.id, set.id, { weight: Number(text) })}
+                      value={set.weight === 0 ? '' : set.weight.toString()}
+                      placeholder="0"
+                      placeholderTextColor="#666"
+                      onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'weight', text)}
                     />
                     <TextInput
-                      style={[styles.setInput, { flex: 1, marginLeft: 10 }]}
+                      style={[styles.setInput, { flex: 1, marginLeft: 8 }]} 
                       keyboardType="numeric"
-                      value={set.reps.toString()}
-                      onChangeText={(text) => updateSet(ex.id, set.id, { reps: Number(text) })}
+                      value={set.reps === 0 ? '' : set.reps.toString()}
+                      placeholder="0"
+                      placeholderTextColor="#666"
+                      onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'reps', text)}
                     />
-                    <TouchableOpacity 
+                    <TouchableOpacity  
                       style={{ width: 30, alignItems: 'flex-end' }}
                       onPress={() => removeSet(ex.id, set.id)}
                     >
-                      <Ionicons name="close" size={20} color="#666" />
+                      {idx !== 0 && <Ionicons name="close" size={20} color="#666" />}
                     </TouchableOpacity>
                   </View>
                 ))}
               </View>
-
-              <TouchableOpacity 
-                style={styles.addSetButton}
-                onPress={() => addSet(ex.id)}
-              >
-                <Ionicons name="add" size={18} color="#2196F3" />
-                <Text style={styles.addSetText}>Add Set</Text>
-              </TouchableOpacity>
             </View>
           ))}
 

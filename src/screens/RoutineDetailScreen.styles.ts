@@ -87,10 +87,11 @@ export const styles = StyleSheet.create({
     marginVertical: 8,
   },
   exerciseCard: {
+    position: 'relative', // Ensure zIndex works correctly
     backgroundColor: '#1E1E1E',
     borderRadius: 12,
     marginBottom: 16,
-    overflow: 'hidden',
+    // overflow: 'hidden', // Removed to allow dropdown to overflow
     borderWidth: 1,
     borderColor: 'transparent',
   },
@@ -147,29 +148,19 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
     fontWeight: 'bold',
   },
+  syncButton: {
+    marginLeft: 4,
+    padding: 4,
+  },
   setInput: {
     backgroundColor: '#2C2C2C',
     color: 'white',
     borderRadius: 6,
-    paddingVertical: 6,
+    paddingVertical: 10,
     paddingHorizontal: 10,
     textAlign: 'center',
     fontWeight: '600',
-  },
-  addSetButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#333',
-    backgroundColor: 'rgba(33, 150, 243, 0.05)',
-  },
-  addSetText: {
-    color: '#2196F3',
-    fontWeight: '600',
-    fontSize: 14,
-    marginLeft: 4,
+    height: 40,
   },
   emptyStateButton: {
     padding: 32,
@@ -210,5 +201,29 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     marginLeft: 8,
+  },
+  // Set Control Styles
+  setControlContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    backgroundColor: '#2C2C2C',
+    borderRadius: 6,
+    padding: 2,
+    height: 40,
+  },
+  setControlButton: {
+    width: 32,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#383838',
+    borderRadius: 4,
+  },
+  setCountText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });

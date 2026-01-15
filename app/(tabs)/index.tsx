@@ -1,7 +1,27 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, StatusBar, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { supabase } from '../../src/lib/supabase';
 
 export default function HomeScreen() {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '로그아웃',
+        style: 'destructive',
+        onPress: async () => {
+          const { error } = await supabase.auth.signOut();
+          if (error) console.error('Sign out error:', error);
+          router.replace('/login');
+        },
+      },
+    ]);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#121212" />
@@ -9,8 +29,8 @@ export default function HomeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Stronger</Text>
-        <TouchableOpacity>
-          <Text style={styles.profileIcon}>👤</Text>
+        <TouchableOpacity onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -37,6 +57,14 @@ export default function HomeScreen() {
             <Text style={styles.cardValue}>12,400kg</Text>
           </View>
         </View>
+
+        {/* Calendar Button */}
+        <TouchableOpacity 
+          style={styles.calendarButton}
+          onPress={() => router.push('/calendar')}
+        >
+          <Text style={styles.calendarButtonText}>달력 보기 📅</Text>
+        </TouchableOpacity>
 
         {/* Recent Activity */}
         <View style={styles.section}>
@@ -66,7 +94,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingTop: 50, // For status bar area
+    paddingTop: 10, // Reduced from 50
     paddingBottom: 20,
     backgroundColor: '#1E1E1E',
   },
@@ -74,9 +102,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#ffffff',
-  },
-  profileIcon: {
-    fontSize: 24,
   },
   content: {
     flex: 1,
@@ -105,6 +130,20 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
+  },
+  calendarButton: {
+    backgroundColor: '#333',
+    paddingVertical: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginBottom: 30,
+    borderWidth: 1,
+    borderColor: '#444',
+  },
+  calendarButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   startButtonText: {
     color: '#ffffff',
