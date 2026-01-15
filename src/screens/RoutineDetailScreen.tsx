@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Modal, FlatList } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Modal, FlatList, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Routine, Exercise } from '../types';
 import { styles } from './RoutineDetailScreen.styles';
@@ -15,6 +15,9 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
   const [exercises, setExercises] = useState<Exercise[]>(routine?.exercises || []);
   const [tags, setTags] = useState<string[]>(routine?.tags || []);
   
+  // State for set count dropdown (modal) - removed as we use buttons now
+  const [reorderSelectedId, setReorderSelectedId] = useState<string | null>(null);
+
   const handleAddExercise = () => {
     const newEx: Exercise = {
       id: Math.random().toString(36).substr(2, 9),
@@ -24,6 +27,26 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
       sets: [{ id: 's1', weight: 0, reps: 0 }]
     };
     setExercises([...exercises, newEx]);
+  };
+
+  const deleteExercise = (id: string) => {
+    setExercises(prev => prev.filter(ex => ex.id !== id));
+    setReorderSelectedId(prev => (prev === id ? null : prev));
+  };
+
+  const removeExercise = (id: string) => {
+    if (Platform.OS === 'web') {
+      // @ts-ignore: confirm exists on web
+      if (window.confirm('해당 운동을 삭제하시겠어요?')) {
+        deleteExercise(id);
+      }
+      return;
+    }
+
+    Alert.alert('운동 삭제', '해당 운동을 삭제하시겠어요?', [
+      { text: '취소', style: 'cancel' },
+      { text: '삭제', style: 'destructive', onPress: () => deleteExercise(id) }
+    ]);
   };
 
   const updateExercise = (id: string, updates: Partial<Exercise>) => {
@@ -117,6 +140,20 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
     }));
   };
 
+  const moveExercise = (id: string, direction: 'up' | 'down') => {
+    const index = exercises.findIndex(e => e.id === id);
+    if (index === -1) return;
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === exercises.length - 1) return;
+
+    const newExercises = [...exercises];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    // Swap
+    [newExercises[index], newExercises[targetIndex]] = [newExercises[targetIndex], newExercises[index]];
+    setExercises(newExercises);
+  };
+
   const handleSave = () => {
     if (!name.trim()) {
       Alert.alert('Error', 'Please enter a routine name');
@@ -170,23 +207,71 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
         {/* Exercises List */}
         <View style={styles.section}>
           <Text style={styles.label}>Exercise List ({exercises.length})</Text>
-          {exercises.map((ex) => (
-            <View key={ex.id} style={styles.exerciseCard}>
-              <View style={styles.exerciseHeader}>
+          {exercises.map((ex, index) => (
+            <View 
+              key={ex.id} 
+              style={[
+                styles.exerciseCard, 
+                reorderSelectedId === ex.id && { borderColor: '#2196F3', borderWidth: 1 }
+              ]}
+            >
+              <View 
+                style={[
+                  styles.exerciseHeader,
+                  reorderSelectedId === ex.id && { backgroundColor: 'rgba(33, 150, 243, 0.1)' }
+                ]}
+              >
                 <View style={styles.exerciseTitleRow}>
-                  <Ionicons name="menu" size={24} color="#666" />
+                  <TouchableOpacity 
+                    style={styles.reorderHandle}
+                    onPress={() => setReorderSelectedId(prev => prev === ex.id ? null : ex.id)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name={reorderSelectedId === ex.id ? "swap-vertical" : "reorder-three"}
+                      size={22}
+                      color={reorderSelectedId === ex.id ? "#2196F3" : "#888"}
+                    />
+                  </TouchableOpacity>
                   <View style={styles.exerciseInfo}>
                     <TextInput
                       style={styles.exerciseNameInput}
                       value={ex.name}
                       onChangeText={(text) => updateExercise(ex.id, { name: text })}
+                      editable={reorderSelectedId !== ex.id} // Disable editing name while reordering
                     />
                     <Text style={styles.exerciseType}>{ex.category} · {ex.type}</Text>
                   </View>
                 </View>
-                <TouchableOpacity>
-                  <Ionicons name="ellipsis-vertical" size={20} color="#666" />
-                </TouchableOpacity>
+                
+                {reorderSelectedId === ex.id ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <TouchableOpacity 
+                      onPress={() => moveExercise(ex.id, 'up')} 
+                      style={{ padding: 8, opacity: index === 0 ? 0.3 : 1 }}
+                      disabled={index === 0}
+                    >
+                      <Ionicons name="arrow-up" size={20} color="#2196F3" />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      onPress={() => moveExercise(ex.id, 'down')} 
+                      style={{ padding: 8, opacity: index === exercises.length - 1 ? 0.3 : 1 }}
+                      disabled={index === exercises.length - 1}
+                    >
+                      <Ionicons name="arrow-down" size={20} color="#2196F3" />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      onPress={() => setReorderSelectedId(null)} 
+                      style={{ padding: 6, backgroundColor: '#2196F3', borderRadius: 4, marginLeft: 4 }}
+                    >
+                      <Ionicons name="checkmark" size={16} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity onPress={() => removeExercise(ex.id)} style={styles.exerciseDeleteButton}>
+                    <Ionicons name="close" size={18} color="#f44336" />
+                  </TouchableOpacity>
+                )}
               </View>
 
               <View style={styles.setsContainer}>

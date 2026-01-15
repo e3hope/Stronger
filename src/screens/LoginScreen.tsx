@@ -34,7 +34,7 @@ export default function LoginScreen() {
 
       Alert.alert(title, message);
     } else {
-      router.replace('/(tabs)');
+      router.replace('/calendar');
     }
   }
 

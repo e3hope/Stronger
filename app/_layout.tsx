@@ -27,14 +27,24 @@ export default function RootLayout() {
 
     // 현재 경로가 (tabs) 내부인지 확인
     // login 페이지는 auth 그룹이 아니므로 접근 가능해야 함
-    const inTabsGroup = segments[0] === '(tabs)';
+    // 루트 경로('/')도 탭(캘린더)으로 연결되므로 보호되어야 함
+    // const inTabsGroup = !segments[0] || segments[0] === '(tabs)';
+    
+    // Auth group check (login, register)
+    const inAuthGroup = segments[0] === 'login' || segments[0] === 'register';
 
-    if (!session && inTabsGroup) {
-      // 세션이 없는데 탭 화면에 있으면 로그인으로 이동
+    if (!session && !inAuthGroup) {
+      // 세션이 없는데 보호된 경로(탭, 루트 등)에 있으면 로그인으로 이동
       router.replace('/login');
-    } else if (session && segments[0] === 'login') {
-      // 세션이 있는데 로그인 화면에 있으면 탭으로 이동
-      router.replace('/(tabs)');
+    } else if (session) {
+      if (inAuthGroup) {
+        // 세션이 있는데 로그인/회원가입 화면에 있으면 캘린더로 이동
+        router.replace('/calendar');
+      } else if (!segments[0]) {
+        // 루트 경로('/')에 있으면 캘린더로 이동
+        // app/index.tsx에서도 Redirect를 사용하지만, 여기서도 체크
+        router.replace('/calendar');
+      }
     }
   }, [session, loading, segments]);
 

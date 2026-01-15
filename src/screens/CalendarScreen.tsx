@@ -1,16 +1,49 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList, Alert, Platform } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useWorkout } from '../context/WorkoutContext';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from './CalendarScreen.styles';
+import { supabase } from '../lib/supabase';
 
 export default function CalendarScreen() {
   const { workouts, routines, addPlannedWorkout } = useWorkout();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+
+  const performLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        Alert.alert('로그아웃 오류', error.message);
+      }
+      // Force navigation to login
+      router.replace('/login');
+    } catch (err) {
+      console.error('Logout error:', err);
+      router.replace('/login');
+    }
+  };
+
+  const handleLogout = () => {
+    if (Platform.OS === 'web') {
+      // @ts-ignore
+      if (window.confirm('정말 로그아웃 하시겠습니까?')) {
+        performLogout();
+      }
+    } else {
+      Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '로그아웃',
+          style: 'destructive',
+          onPress: performLogout,
+        },
+      ]);
+    }
+  };
 
   const markedDates = workouts.reduce((acc, workout) => {
     const date = workout.date.split('T')[0];
@@ -43,6 +76,9 @@ export default function CalendarScreen() {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Stronger</Text>
+        <TouchableOpacity onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={24} color="white" />
+        </TouchableOpacity>
       </View>
       <Calendar
         onDayPress={(day: any) => setSelectedDate(day.dateString)}

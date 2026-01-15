@@ -109,6 +109,22 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
+  reorderHandle: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    backgroundColor: '#1f1f1f',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  exerciseDeleteButton: {
+    padding: 6,
+    borderRadius: 20,
+    backgroundColor: 'rgba(244, 67, 54, 0.12)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   exerciseInfo: {
     marginLeft: 12,
     flex: 1,
