@@ -9,18 +9,33 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const passwordInputRef = React.useRef<TextInput>(null);
 
   async function signInWithEmail() {
     if (loading) return;
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: email.trim(),
+      password: password.trim(),
     });
     setLoading(false);
 
-    if (error) Alert.alert('Error', error.message);
-    else router.replace('/(tabs)');
+    if (error) {
+      let title = '로그인 실패';
+      let message = error.message;
+
+      if (error.message.includes('Invalid login credentials')) {
+        message = '이메일 또는 비밀번호가 일치하지 않습니다.\n입력하신 내용을 다시 확인해 주세요.';
+      } else if (error.message.includes('Email not confirmed')) {
+        message = '이메일 인증이 완료되지 않았습니다.\n가입하신 이메일의 수신함을 확인해 주세요.';
+      } else if (error.message.includes('rate limit')) {
+        message = '너무 많은 시도가 있었습니다.\n잠시 후 다시 시도해 주세요.';
+      }
+
+      Alert.alert(title, message);
+    } else {
+      router.replace('/(tabs)');
+    }
   }
 
   return (
@@ -35,8 +50,12 @@ export default function LoginScreen() {
           value={email}
           autoCapitalize="none"
           keyboardType="email-address"
+          returnKeyType="next"
+          onSubmitEditing={() => passwordInputRef.current?.focus()}
+          blurOnSubmit={false}
         />
         <TextInput
+          ref={passwordInputRef}
           style={styles.input}
           placeholder="Password"
           placeholderTextColor="#888"
@@ -44,6 +63,8 @@ export default function LoginScreen() {
           onChangeText={setPassword}
           value={password}
           autoCapitalize="none"
+          returnKeyType="done"
+          onSubmitEditing={signInWithEmail}
         />
       </View>
       <View style={styles.buttonContainer}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView, StatusBar, Alert } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, StatusBar, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../src/lib/supabase';
@@ -7,19 +7,35 @@ import { supabase } from '../../src/lib/supabase';
 export default function HomeScreen() {
   const router = useRouter();
 
+  const performLogout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        Alert.alert('로그아웃 오류', error.message);
+      }
+      // Force navigation to login
+      router.replace('/login');
+    } catch (err) {
+      console.error('Logout error:', err);
+      router.replace('/login');
+    }
+  };
+
   const handleLogout = () => {
-    Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '로그아웃',
-        style: 'destructive',
-        onPress: async () => {
-          const { error } = await supabase.auth.signOut();
-          if (error) console.error('Sign out error:', error);
-          router.replace('/login');
+    if (Platform.OS === 'web') {
+      if (window.confirm('정말 로그아웃 하시겠습니까?')) {
+        performLogout();
+      }
+    } else {
+      Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '로그아웃',
+          style: 'destructive',
+          onPress: performLogout,
         },
-      },
-    ]);
+      ]);
+    }
   };
 
   return (

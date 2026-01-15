@@ -14,8 +14,8 @@ export default function Register() {
     if (loading) return;
     setLoading(true);
     const { error } = await supabase.auth.signUp({
-      email,
-      password,
+      email: email.trim(),
+      password: password.trim(),
     });
     setLoading(false);
 
