@@ -117,7 +117,8 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
           exercises: l.exercises_log,
           duration: 60, // Default
           volume: volume,
-          prs: 0
+          prs: 0,
+          memo: l.memo // DB column
         };
       });
       setWorkouts(formattedLogs);
@@ -179,7 +180,8 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         user_id: publicUserId, // Use Integer ID
         routine_id: workout.routine_id || null,
         performed_at: workout.date,
-        exercises_log: workout.exercises
+        exercises_log: workout.exercises,
+        memo: workout.memo
       });
 
       if (error) throw error;
@@ -200,7 +202,8 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.from('workout_logs').update({
         performed_at: workout.date,
         exercises_log: workout.exercises,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        memo: workout.memo
       }).eq('id', workout.id);
 
       if (error) throw error;

@@ -42,6 +42,7 @@ export interface WorkoutLog {
   duration?: number; // minutes
   volume?: number; // kg
   prs?: number;
+  memo?: string;
 }
 
 // Alias for backward compatibility during refactor

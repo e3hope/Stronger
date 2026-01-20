@@ -1,14 +1,20 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useWorkout } from '../context/WorkoutContext';
 import { Routine } from '../types';
 import { styles } from './RoutineListScreen.styles';
 
 export default function RoutineListScreen() {
-  const { routines } = useWorkout();
+  const { routines, refreshData } = useWorkout();
   const router = useRouter();
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshData();
+    }, [])
+  );
 
   const renderItem = ({ item }: { item: Routine }) => (
     <TouchableOpacity 

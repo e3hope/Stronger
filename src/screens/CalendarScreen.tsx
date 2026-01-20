@@ -118,6 +118,11 @@ export default function CalendarScreen() {
               <Text style={styles.workoutStats}>
                 Volume: {workout.volume}kg • PRs: {workout.prs}
               </Text>
+              {workout.memo ? (
+                <Text style={styles.memoText} numberOfLines={2}>
+                  {workout.memo}
+                </Text>
+              ) : null}
             </TouchableOpacity>
           ))
         ) : (

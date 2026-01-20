@@ -51,6 +51,7 @@ create table if not exists public.workout_logs (
   routine_id integer references public.routines(id), -- Integer FK
   performed_at timestamp with time zone default timezone('utc'::text, now()), -- 날짜
   exercises_log jsonb not null default '[]'::jsonb, -- 기록 운동
+  memo text, -- 운동 메모
   created_at timestamp with time zone default timezone('utc'::text, now()),
   updated_at timestamp with time zone default timezone('utc'::text, now())
 );

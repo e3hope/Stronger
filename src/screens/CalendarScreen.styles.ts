@@ -43,6 +43,12 @@ export const styles = StyleSheet.create({
     color: '#888',
     fontSize: 14,
   },
+  memoText: {
+    color: '#aaa',
+    fontSize: 14,
+    marginTop: 8,
+    fontStyle: 'italic',
+  },
   emptyText: {
     color: '#666',
     textAlign: 'center',
