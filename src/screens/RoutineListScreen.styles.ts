@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from '../colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -47,7 +48,7 @@ export const styles = StyleSheet.create({
     fontSize: 12,
   },
   exerciseCount: {
-    color: '#2196F3',
+    color: Colors.primary,
     fontWeight: '500',
   },
   emptyText: {
@@ -65,11 +66,11 @@ export const styles = StyleSheet.create({
   fab: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2196F3',
+    backgroundColor: Colors.primary,
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 30,
-    shadowColor: '#2196F3',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

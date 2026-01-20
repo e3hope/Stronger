@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from './CalendarScreen.styles';
 import { supabase } from '../lib/supabase';
+import { Colors } from '../colors';
 
 export default function CalendarScreen() {
   const { workouts, routines, addPlannedWorkout } = useWorkout();
@@ -47,7 +48,7 @@ export default function CalendarScreen() {
 
   const markedDates = workouts.reduce((acc, workout) => {
     const date = workout.date.split('T')[0];
-    acc[date] = { marked: true, dotColor: '#2196F3' };
+    acc[date] = { marked: true, dotColor: Colors.primary };
     return acc;
   }, {} as any);
 
@@ -55,7 +56,7 @@ export default function CalendarScreen() {
     markedDates[selectedDate] = { 
       ...markedDates[selectedDate], 
       selected: true, 
-      selectedColor: '#2196F3' 
+      selectedColor: Colors.primary 
     };
   }
 
@@ -87,12 +88,12 @@ export default function CalendarScreen() {
           backgroundColor: '#121212',
           calendarBackground: '#121212',
           textSectionTitleColor: '#b6c1cd',
-          selectedDayBackgroundColor: '#2196F3',
+          selectedDayBackgroundColor: Colors.primary,
           selectedDayTextColor: '#ffffff',
-          todayTextColor: '#2196F3',
+          todayTextColor: Colors.primary,
           dayTextColor: '#d9e1e8',
           textDisabledColor: '#2d4150',
-          dotColor: '#2196F3',
+          dotColor: Colors.primary,
           selectedDotColor: '#ffffff',
           arrowColor: 'white',
           monthTextColor: 'white',

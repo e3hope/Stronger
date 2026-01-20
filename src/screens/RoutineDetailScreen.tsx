@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Modal, Flat
 import { Ionicons } from '@expo/vector-icons';
 import { Routine, Exercise } from '../types';
 import { styles } from './RoutineDetailScreen.styles';
+import { Colors } from '../colors';
 
 interface RoutineDetailScreenProps {
   routine: Routine | null;
@@ -212,7 +213,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
               key={ex.id} 
               style={[
                 styles.exerciseCard, 
-                reorderSelectedId === ex.id && { borderColor: '#2196F3', borderWidth: 1 }
+                reorderSelectedId === ex.id && { borderColor: Colors.primary, borderWidth: 1 }
               ]}
             >
               <View 
@@ -230,7 +231,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
                     <Ionicons
                       name={reorderSelectedId === ex.id ? "swap-vertical" : "reorder-three"}
                       size={22}
-                      color={reorderSelectedId === ex.id ? "#2196F3" : "#888"}
+                      color={reorderSelectedId === ex.id ? Colors.primary : "#888"}
                     />
                   </TouchableOpacity>
                   <View style={styles.exerciseInfo}>
@@ -251,18 +252,18 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
                       style={{ padding: 8, opacity: index === 0 ? 0.3 : 1 }}
                       disabled={index === 0}
                     >
-                      <Ionicons name="arrow-up" size={20} color="#2196F3" />
+                      <Ionicons name="arrow-up" size={20} color={Colors.primary} />
                     </TouchableOpacity>
                     <TouchableOpacity 
                       onPress={() => moveExercise(ex.id, 'down')} 
                       style={{ padding: 8, opacity: index === exercises.length - 1 ? 0.3 : 1 }}
                       disabled={index === exercises.length - 1}
                     >
-                      <Ionicons name="arrow-down" size={20} color="#2196F3" />
+                      <Ionicons name="arrow-down" size={20} color={Colors.primary} />
                     </TouchableOpacity>
                     <TouchableOpacity 
                       onPress={() => setReorderSelectedId(null)} 
-                      style={{ padding: 6, backgroundColor: '#2196F3', borderRadius: 4, marginLeft: 4 }}
+                      style={{ padding: 6, backgroundColor: Colors.primary, borderRadius: 4, marginLeft: 4 }}
                     >
                       <Ionicons name="checkmark" size={16} color="white" />
                     </TouchableOpacity>

@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from '../colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -26,11 +27,11 @@ export const styles = StyleSheet.create({
   saveButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+    backgroundColor: Colors.primaryLight,
     borderRadius: 16,
   },
   saveButtonText: {
-    color: '#2196F3',
+    color: Colors.primary,
     fontWeight: 'bold',
   },
   content: {
@@ -59,15 +60,15 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   tag: {
-    backgroundColor: 'rgba(33, 150, 243, 0.2)',
+    backgroundColor: Colors.primaryMedium,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(33, 150, 243, 0.3)',
+    borderColor: 'rgba(29, 233, 182, 0.3)',
   },
   tagText: {
-    color: '#2196F3',
+    color: Colors.primary,
     fontSize: 12,
     fontWeight: '600',
   },
@@ -202,11 +203,11 @@ export const styles = StyleSheet.create({
   fab: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2196F3',
+    backgroundColor: Colors.primary,
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 30,
-    shadowColor: '#2196F3',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

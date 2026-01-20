@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
+import { Colors } from '../colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    backgroundColor: Colors.primary,
   },
   header: {
     flexDirection: 'row',
@@ -13,7 +14,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
-    backgroundColor: '#1E1E1E',
+    backgroundColor: Colors.primary,
   },
   headerTitle: {
     color: 'white',
@@ -44,6 +45,7 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#333',
     alignItems: 'center',
+    shadowColor: Colors.primary,
   },
   statLabel: {
     color: '#888',
@@ -59,7 +61,7 @@ export const styles = StyleSheet.create({
   statUnit: {
     fontSize: 12,
     fontWeight: 'normal',
-    color: '#666',
+    color: Colors.primary,
   },
   tableHeader: {
     flexDirection: 'row',
@@ -96,6 +98,7 @@ export const styles = StyleSheet.create({
     marginBottom: 12,
     borderWidth: 1,
     borderColor: '#333',
+    shadowColor: Colors.primary,
   },
   exerciseInfo: {
     flexDirection: 'row',
@@ -106,7 +109,7 @@ export const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+    backgroundColor: Colors.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -120,7 +123,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   exerciseMeta: {
-    color: '#666',
+    color: Colors.primary,
     fontSize: 10,
     marginTop: 2,
   },
@@ -154,7 +157,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   setValueLabel: {
-    color: '#666',
+    color: Colors.primary,
     fontSize: 10,
     marginLeft: 4,
   },
@@ -165,7 +168,7 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#333',
+    shadowColor: Colors.primary,
   },
   memoTitle: {
     color: '#888',
@@ -189,11 +192,11 @@ export const styles = StyleSheet.create({
   saveButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: 'rgba(33, 150, 243, 0.1)',
+    backgroundColor: Colors.primaryLight,
     borderRadius: 16,
   },
   saveButtonText: {
-    color: '#2196F3',
+    color: Colors.primary,
     fontWeight: 'bold',
   },
   section: {
@@ -254,7 +257,7 @@ export const styles = StyleSheet.create({
     padding: 0,
   },
   exerciseType: {
-    color: '#666',
+    color: Colors.primary,
     fontSize: 12,
     marginTop: 2,
   },
@@ -267,7 +270,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   setHeaderText: {
-    color: '#666',
+    color: Colors.primary,
     fontSize: 10,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -290,7 +293,7 @@ export const styles = StyleSheet.create({
   emptyStateButton: {
     padding: 32,
     borderWidth: 2,
-    borderColor: '#333',
+    borderColor: Colors.primary,
     borderStyle: 'dashed',
     borderRadius: 12,
     alignItems: 'center',
@@ -298,7 +301,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   emptyStateText: {
-    color: '#666',
+    color: Colors.primary,
     fontSize: 16,
   },
   fabContainer: {
@@ -311,11 +314,11 @@ export const styles = StyleSheet.create({
   fab: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2196F3',
+    backgroundColor: Colors.primary,
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 30,
-    shadowColor: '#2196F3',
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

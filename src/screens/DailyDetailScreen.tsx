@@ -3,6 +3,7 @@ import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform } 
 import { Ionicons } from '@expo/vector-icons';
 import { WorkoutLog, Exercise } from '../types';
 import { styles } from './DailyDetailScreen.styles';
+import { Colors } from '../colors';
 
 interface DailyDetailScreenProps {
   workout: WorkoutLog | null;
@@ -197,7 +198,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
                 key={ex.id} 
                 style={[
                   styles.exerciseCard, 
-                  reorderSelectedId === ex.id && { borderColor: '#2196F3', borderWidth: 1 }
+                  reorderSelectedId === ex.id && { borderColor: Colors.primary, borderWidth: 1 }
                 ]}
               >
                 <View 
@@ -215,7 +216,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
                       <Ionicons
                         name={reorderSelectedId === ex.id ? "swap-vertical" : "reorder-three"}
                         size={22}
-                        color={reorderSelectedId === ex.id ? "#2196F3" : "#888"}
+                        color={reorderSelectedId === ex.id ? Colors.primary : "#888"}
                       />
                     </TouchableOpacity>
                     <View style={styles.exerciseInfo}>
@@ -236,18 +237,18 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
                         style={{ padding: 8, opacity: index === 0 ? 0.3 : 1 }}
                         disabled={index === 0}
                       >
-                        <Ionicons name="arrow-up" size={20} color="#2196F3" />
+                        <Ionicons name="arrow-up" size={20} color={Colors.primary} />
                       </TouchableOpacity>
                       <TouchableOpacity 
                         onPress={() => moveExercise(ex.id, 'down')} 
                         style={{ padding: 8, opacity: index === editedWorkout.exercises.length - 1 ? 0.3 : 1 }}
                         disabled={index === editedWorkout.exercises.length - 1}
                       >
-                        <Ionicons name="arrow-down" size={20} color="#2196F3" />
+                        <Ionicons name="arrow-down" size={20} color={Colors.primary} />
                       </TouchableOpacity>
                       <TouchableOpacity 
                         onPress={() => setReorderSelectedId(null)} 
-                        style={{ padding: 6, backgroundColor: '#2196F3', borderRadius: 4, marginLeft: 4 }}
+                        style={{ padding: 6, backgroundColor: Colors.primary, borderRadius: 4, marginLeft: 4 }}
                       >
                         <Ionicons name="checkmark" size={16} color="white" />
                       </TouchableOpacity>
@@ -354,7 +355,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
           </TouchableOpacity>
         </View>
         <TouchableOpacity onPress={() => setIsEditing(true)} style={styles.iconButton}>
-          <Text style={{ color: '#2196F3', fontWeight: 'bold' }}>Edit</Text>
+          <Text style={{ color: Colors.primary, fontWeight: 'bold' }}>Edit</Text>
         </TouchableOpacity>
       </View>
 
@@ -414,7 +415,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
             <View key={i} style={styles.exerciseCard}>
               <View style={styles.exerciseInfo}>
                 <View style={styles.exerciseIcon}>
-                  <Ionicons name="fitness" size={24} color="#2196F3" />
+                  <Ionicons name="fitness" size={24} color={Colors.primary} />
                 </View>
                 <View style={styles.exerciseText}>
                   <Text style={styles.exerciseName}>{item.name}</Text>
