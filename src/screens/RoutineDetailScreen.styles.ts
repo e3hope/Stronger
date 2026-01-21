@@ -53,6 +53,22 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
   },
+  deleteButton: {
+    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(244, 67, 54, 0.3)',
+  },
+  deleteButtonText: {
+    color: '#ff4444',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
   tagContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',

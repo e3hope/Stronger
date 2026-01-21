@@ -14,7 +14,6 @@ interface RoutineDetailScreenProps {
 export default function RoutineDetailScreen({ routine, onSave, onBack }: RoutineDetailScreenProps) {
   const [name, setName] = useState(routine?.name || '');
   const [exercises, setExercises] = useState<Exercise[]>(routine?.exercises || []);
-  const [tags, setTags] = useState<string[]>(routine?.tags || []);
   
   // State for set count dropdown (modal) - removed as we use buttons now
   const [reorderSelectedId, setReorderSelectedId] = useState<string | null>(null);
@@ -165,8 +164,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
       id: routine?.id || -1, // -1 means new routine
       name,
       exercises,
-      tags,
-      estimatedDuration: 45
+      tags: [],
     });
   };
 
@@ -194,13 +192,6 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
             value={name}
             onChangeText={setName}
           />
-          <View style={styles.tagContainer}>
-            {tags.map((tag, index) => (
-              <View key={index} style={styles.tag}>
-                <Text style={styles.tagText}>{tag}</Text>
-              </View>
-            ))}
-          </View>
         </View>
 
         <View style={styles.divider} />

@@ -14,7 +14,6 @@ interface DailyDetailScreenProps {
 export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDetailScreenProps) {
   if (!workout) return null;
 
-  const [isEditing, setIsEditing] = useState(false);
   const [editedWorkout, setEditedWorkout] = useState<WorkoutLog>(workout);
   const [reorderSelectedId, setReorderSelectedId] = useState<string | null>(null);
 
@@ -159,247 +158,178 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
   const handleSave = async () => {
     if (onUpdate) {
       await onUpdate(editedWorkout);
-      setIsEditing(false);
+      onBack();
     }
   };
 
-  // --- Render ---
-
-  if (isEditing) {
-    return (
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => setIsEditing(false)} style={styles.iconButton}>
-            <Text style={{ color: 'white' }}>Cancel</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Edit Workout</Text>
-          <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>Save</Text>
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView style={styles.content}>
-          <View style={styles.section}>
-            {/* Memo Section */}
-            <View style={styles.memoSection}>
-              <Text style={styles.memoTitle}>MEMO</Text>
-              <TextInput
-                style={styles.memoInput}
-                multiline
-                placeholder="Write your workout notes here..."
-                placeholderTextColor="#666"
-                value={editedWorkout.memo || ''}
-                onChangeText={(text) => setEditedWorkout(prev => ({ ...prev, memo: text }))}
-              />
-            </View>
-
-            {editedWorkout.exercises.map((ex, index) => (
-              <View 
-                key={ex.id} 
-                style={[
-                  styles.exerciseCard, 
-                  reorderSelectedId === ex.id && { borderColor: Colors.primary, borderWidth: 1 }
-                ]}
-              >
-                <View 
-                  style={[
-                    styles.exerciseHeader,
-                    reorderSelectedId === ex.id && { backgroundColor: 'rgba(33, 150, 243, 0.1)' }
-                  ]}
-                >
-                  <View style={styles.exerciseTitleRow}>
-                    <TouchableOpacity 
-                      style={styles.reorderHandle}
-                      onPress={() => setReorderSelectedId(prev => prev === ex.id ? null : ex.id)}
-                      activeOpacity={0.7}
-                    >
-                      <Ionicons
-                        name={reorderSelectedId === ex.id ? "swap-vertical" : "reorder-three"}
-                        size={22}
-                        color={reorderSelectedId === ex.id ? Colors.primary : "#888"}
-                      />
-                    </TouchableOpacity>
-                    <View style={styles.exerciseInfo}>
-                      <TextInput
-                        style={styles.exerciseNameInput}
-                        value={ex.name}
-                        onChangeText={(text) => updateExercise(ex.id, { name: text })}
-                        editable={reorderSelectedId !== ex.id}
-                      />
-                      <Text style={styles.exerciseType}>{ex.category} · {ex.type}</Text>
-                    </View>
-                  </View>
-                  
-                  {reorderSelectedId === ex.id ? (
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                      <TouchableOpacity 
-                        onPress={() => moveExercise(ex.id, 'up')} 
-                        style={{ padding: 8, opacity: index === 0 ? 0.3 : 1 }}
-                        disabled={index === 0}
-                      >
-                        <Ionicons name="arrow-up" size={20} color={Colors.primary} />
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        onPress={() => moveExercise(ex.id, 'down')} 
-                        style={{ padding: 8, opacity: index === editedWorkout.exercises.length - 1 ? 0.3 : 1 }}
-                        disabled={index === editedWorkout.exercises.length - 1}
-                      >
-                        <Ionicons name="arrow-down" size={20} color={Colors.primary} />
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        onPress={() => setReorderSelectedId(null)} 
-                        style={{ padding: 6, backgroundColor: Colors.primary, borderRadius: 4, marginLeft: 4 }}
-                      >
-                        <Ionicons name="checkmark" size={16} color="white" />
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <TouchableOpacity onPress={() => removeExercise(ex.id)} style={styles.exerciseDeleteButton}>
-                      <Ionicons name="close" size={18} color="#f44336" />
-                    </TouchableOpacity>
-                  )}
-                </View>
-
-                <View style={styles.setsContainer}>
-                  <View style={styles.setHeaderRow}>
-                    <Text style={[styles.setHeaderText, { width: 100 }]}>SET</Text>
-                    <Text style={[styles.setHeaderText, { flex: 1 }]}>KG</Text>
-                    <Text style={[styles.setHeaderText, { flex: 1 }]}>REPS</Text>
-                    <View style={{ width: 30 }} />
-                  </View>
-                  {ex.sets.map((set, idx) => (
-                    <View key={set.id} style={styles.setRow}>
-                      <View style={{ width: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-                        {idx === 0 ? (
-                          <View style={styles.setControlContainer}>
-                            <TouchableOpacity 
-                              style={styles.setControlButton}
-                              onPress={() => updateSetCount(ex.id, Math.max(1, ex.sets.length - 1))}
-                            >
-                              <Ionicons name="remove" size={16} color="white" />
-                            </TouchableOpacity>
-                            <Text style={styles.setCountText}>1</Text>
-                            <TouchableOpacity 
-                              style={styles.setControlButton}
-                              onPress={() => updateSetCount(ex.id, ex.sets.length + 1)}
-                            >
-                              <Ionicons name="add" size={16} color="white" />
-                            </TouchableOpacity>
-                          </View>
-                        ) : (
-                          <Text style={styles.setNumber}>{idx + 1}</Text>
-                        )}
-                      </View>
-                      <TextInput
-                        style={[styles.setInput, { flex: 1, marginLeft: 8 }]} 
-                        keyboardType="numeric"
-                        value={set.weight === 0 ? '' : set.weight.toString()}
-                        placeholder="0"
-                        placeholderTextColor="#666"
-                        onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'weight', text)}
-                      />
-                      <TextInput
-                        style={[styles.setInput, { flex: 1, marginLeft: 8 }]} 
-                        keyboardType="numeric"
-                        value={set.reps === 0 ? '' : set.reps.toString()}
-                        placeholder="0"
-                        placeholderTextColor="#666"
-                        onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'reps', text)}
-                      />
-                      <TouchableOpacity  
-                        style={{ width: 30, alignItems: 'flex-end' }}
-                        onPress={() => removeSet(ex.id, set.id)}
-                      >
-                        {idx !== 0 && <Ionicons name="close" size={20} color="#666" />}
-                      </TouchableOpacity>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            ))}
-
-            {editedWorkout.exercises.length === 0 && (
-              <TouchableOpacity style={styles.emptyStateButton} onPress={handleAddExercise}>
-                <Ionicons name="fitness" size={40} color="#666" />
-                <Text style={styles.emptyStateText}>Add your first exercise</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          <View style={{ height: 100 }} />
-        </ScrollView>
-
-        <View style={styles.fabContainer}>
-          <TouchableOpacity style={styles.fab} onPress={handleAddExercise}>
-            <Ionicons name="add" size={24} color="#121212" />
-            <Text style={styles.fabText}>Add Exercise</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
-
-  // Read-only View
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.iconButton}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <View style={styles.dateSelector}>
-          <TouchableOpacity>
-            <Ionicons name="chevron-back" size={24} color="#666" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>{dateStr}, Today</Text>
-          <TouchableOpacity>
-            <Ionicons name="chevron-forward" size={24} color="#666" />
-          </TouchableOpacity>
-        </View>
-        <TouchableOpacity onPress={() => setIsEditing(true)} style={styles.iconButton}>
-          <Text style={{ color: Colors.primary, fontWeight: 'bold' }}>Edit</Text>
+        <Text style={styles.headerTitle}>{dateStr}</Text>
+        <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>Save</Text>
         </TouchableOpacity>
       </View>
 
       <ScrollView style={styles.content}>
-        {/* Memo Display */}
-        <View style={[styles.memoSection, { marginHorizontal: 16 }]}>
-          <Text style={styles.memoTitle}>MEMO</Text>
-          <Text style={[styles.memoText, !editedWorkout.memo && { color: '#666', fontStyle: 'italic' }]}>
-            {editedWorkout.memo || 'No memo available.'}
-          </Text>
-        </View>
+        <View style={styles.section}>
+          {/* Memo Section */}
+          <View style={styles.memoSection}>
+            <Text style={styles.memoTitle}>MEMO</Text>
+            <TextInput
+              style={styles.memoInput}
+              multiline
+              placeholder="Write your workout notes here..."
+              placeholderTextColor="#666"
+              value={editedWorkout.memo || ''}
+              onChangeText={(text) => setEditedWorkout(prev => ({ ...prev, memo: text }))}
+            />
+          </View>
 
-        <View style={styles.exerciseList}>
-          {editedWorkout.exercises.map((item, i) => (
-            <View key={i} style={styles.exerciseCard}>
-              <View style={styles.exerciseInfo}>
-                <View style={styles.exerciseIcon}>
-                  <Ionicons name="fitness" size={24} color={Colors.primary} />
+          {editedWorkout.exercises.map((ex, index) => (
+            <View 
+              key={ex.id} 
+              style={[
+                styles.exerciseCard, 
+                reorderSelectedId === ex.id && { borderColor: Colors.primary, borderWidth: 1 }
+              ]}
+            >
+              <View 
+                style={[
+                  styles.exerciseHeader,
+                  reorderSelectedId === ex.id && { backgroundColor: 'rgba(33, 150, 243, 0.1)' }
+                ]}
+              >
+                <View style={styles.exerciseTitleRow}>
+                  <TouchableOpacity 
+                    style={styles.reorderHandle}
+                    onPress={() => setReorderSelectedId(prev => prev === ex.id ? null : ex.id)}
+                    activeOpacity={0.7}
+                  >
+                    <Ionicons
+                      name={reorderSelectedId === ex.id ? "swap-vertical" : "reorder-three"}
+                      size={22}
+                      color={reorderSelectedId === ex.id ? Colors.primary : "#888"}
+                    />
+                  </TouchableOpacity>
+                  <View style={styles.exerciseInfo}>
+                    <TextInput
+                      style={styles.exerciseNameInput}
+                      value={ex.name}
+                      onChangeText={(text) => updateExercise(ex.id, { name: text })}
+                      editable={reorderSelectedId !== ex.id}
+                    />
+                    <Text style={styles.exerciseType}>{ex.category} · {ex.type}</Text>
+                  </View>
                 </View>
-                <View style={styles.exerciseText}>
-                  <Text style={styles.exerciseName}>{item.name}</Text>
-                  <Text style={styles.exerciseMeta}>{item.category || 'General'} • {item.type || 'Exercise'}</Text>
-                </View>
+                
+                {reorderSelectedId === ex.id ? (
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <TouchableOpacity 
+                      onPress={() => moveExercise(ex.id, 'up')} 
+                      style={{ padding: 8, opacity: index === 0 ? 0.3 : 1 }}
+                      disabled={index === 0}
+                    >
+                      <Ionicons name="arrow-up" size={20} color={Colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      onPress={() => moveExercise(ex.id, 'down')} 
+                      style={{ padding: 8, opacity: index === editedWorkout.exercises.length - 1 ? 0.3 : 1 }}
+                      disabled={index === editedWorkout.exercises.length - 1}
+                    >
+                      <Ionicons name="arrow-down" size={20} color={Colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      onPress={() => setReorderSelectedId(null)} 
+                      style={{ padding: 6, backgroundColor: Colors.primary, borderRadius: 4, marginLeft: 4 }}
+                    >
+                      <Ionicons name="checkmark" size={16} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity onPress={() => removeExercise(ex.id)} style={styles.exerciseDeleteButton}>
+                    <Ionicons name="close" size={18} color="#f44336" />
+                  </TouchableOpacity>
+                )}
               </View>
-              
-              <View style={styles.setListContainer}>
-                {item.sets && item.sets.map((set, j) => (
-                  <View key={j} style={styles.setRow}>
-                    <View style={styles.setIndexBox}>
-                      <Text style={styles.setIndexText}>{j + 1}</Text>
+
+              <View style={styles.setsContainer}>
+                <View style={styles.setHeaderRow}>
+                  <Text style={[styles.setHeaderText, { width: 100 }]}>SET</Text>
+                  <Text style={[styles.setHeaderText, { flex: 1 }]}>KG</Text>
+                  <Text style={[styles.setHeaderText, { flex: 1 }]}>REPS</Text>
+                  <View style={{ width: 30 }} />
+                </View>
+                {ex.sets.map((set, idx) => (
+                  <View key={set.id} style={styles.setRow}>
+                    <View style={{ width: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                      {idx === 0 ? (
+                        <View style={styles.setControlContainer}>
+                          <TouchableOpacity 
+                            style={styles.setControlButton}
+                            onPress={() => updateSetCount(ex.id, Math.max(1, ex.sets.length - 1))}
+                          >
+                            <Ionicons name="remove" size={16} color="white" />
+                          </TouchableOpacity>
+                          <Text style={styles.setCountText}>1</Text>
+                          <TouchableOpacity 
+                            style={styles.setControlButton}
+                            onPress={() => updateSetCount(ex.id, ex.sets.length + 1)}
+                          >
+                            <Ionicons name="add" size={16} color="white" />
+                          </TouchableOpacity>
+                        </View>
+                      ) : (
+                        <Text style={styles.setNumber}>{idx + 1}</Text>
+                      )}
                     </View>
-                    <View style={styles.setValueBox}>
-                      <Text style={styles.setValueText}>{set.weight} <Text style={styles.setValueLabel}>kg</Text></Text>
-                    </View>
-                    <View style={styles.setValueBox}>
-                      <Text style={styles.setValueText}>{set.reps} <Text style={styles.setValueLabel}>reps</Text></Text>
-                    </View>
+                    <TextInput
+                      style={[styles.setInput, { flex: 1, marginLeft: 8 }]} 
+                      keyboardType="numeric"
+                      value={set.weight === 0 ? '' : set.weight.toString()}
+                      placeholder="0"
+                      placeholderTextColor="#666"
+                      onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'weight', text)}
+                    />
+                    <TextInput
+                      style={[styles.setInput, { flex: 1, marginLeft: 8 }]} 
+                      keyboardType="numeric"
+                      value={set.reps === 0 ? '' : set.reps.toString()}
+                      placeholder="0"
+                      placeholderTextColor="#666"
+                      onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'reps', text)}
+                    />
+                    <TouchableOpacity  
+                      style={{ width: 30, alignItems: 'flex-end' }}
+                      onPress={() => removeSet(ex.id, set.id)}
+                    >
+                      {idx !== 0 && <Ionicons name="close" size={20} color="#666" />}
+                    </TouchableOpacity>
                   </View>
                 ))}
               </View>
             </View>
           ))}
+
+          {editedWorkout.exercises.length === 0 && (
+            <TouchableOpacity style={styles.emptyStateButton} onPress={handleAddExercise}>
+              <Ionicons name="fitness" size={40} color="#666" />
+              <Text style={styles.emptyStateText}>Add your first exercise</Text>
+            </TouchableOpacity>
+          )}
         </View>
+        <View style={{ height: 100 }} />
       </ScrollView>
+
+      <View style={styles.fabContainer}>
+        <TouchableOpacity style={styles.fab} onPress={handleAddExercise}>
+          <Ionicons name="add" size={24} color="#121212" />
+          <Text style={styles.fabText}>Add Exercise</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

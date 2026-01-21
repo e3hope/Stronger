@@ -14,8 +14,8 @@ export default function RoutineDetailRoute() {
     ? null 
     : routines.find(r => r.id === Number(id)) || null;
 
-  const handleSave = (updatedRoutine: Routine) => {
-    saveRoutine(updatedRoutine);
+  const handleSave = async (updatedRoutine: Routine) => {
+    await saveRoutine(updatedRoutine);
     router.back();
   };
 

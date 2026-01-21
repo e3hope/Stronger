@@ -8,6 +8,7 @@ interface WorkoutContextType {
   workouts: WorkoutLog[];
   loading: boolean;
   saveRoutine: (routine: Routine) => Promise<void>;
+  deleteRoutine: (id: number) => Promise<void>;
   addWorkout: (workout: WorkoutLog) => Promise<void>;
   updateWorkoutLog: (workout: WorkoutLog) => Promise<void>;
   addPlannedWorkout: (date: string, routineId: number) => Promise<void>;
@@ -86,7 +87,6 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         name: r.name,
         exercises: r.exercises_detail, // JSONB 자동 파싱됨
         tags: [], // UI only
-        estimatedDuration: 45 // Default
       }));
       setRoutines(formattedRoutines);
 
@@ -112,7 +112,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
           id: l.id,
           user_id: l.user_id,
           routine_id: l.routine_id,
-          routineName: relatedRoutine ? relatedRoutine.name : 'Custom Workout',
+          routineName: relatedRoutine ? relatedRoutine.name : '-',
           date: l.performed_at,
           exercises: l.exercises_log,
           duration: 60, // Default
@@ -165,6 +165,45 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error saving routine:', error);
       Alert.alert('Error', 'Failed to save routine');
+    }
+  };
+
+  const deleteRoutine = async (id: number) => {
+    console.log('[deleteRoutine] called with id:', id, 'publicUserId:', publicUserId);
+    // Delete routine from DB
+    try {
+      if (!publicUserId) {
+        Alert.alert('Error', '로그인이 필요합니다.');
+        return;
+      }
+
+      // 1. 루틴 삭제 전 연관된 운동 로그의 연결 해제 (FK 제약 조건 방지)
+      const { error: unlinkError } = await supabase
+        .from('workout_logs')
+        .update({ routine_id: null })
+        .eq('routine_id', id);
+
+      if (unlinkError) {
+        console.error('Error unlinking workout logs:', unlinkError);
+        throw unlinkError;
+      }
+
+      // 2. 루틴 삭제
+      const { error, count } = await supabase
+        .from('routines')
+        .delete({ count: 'exact' })
+        .eq('id', id);
+        
+      console.log('[deleteRoutine] supabase response:', { error, count });
+
+      if (error) throw error;
+      
+      console.log('[deleteRoutine] fetching data...');
+      await fetchData();
+      console.log('[deleteRoutine] data fetched');
+    } catch (error) {
+      console.error('Error deleting routine:', error);
+      Alert.alert('Error', 'Failed to delete routine: ' + (error instanceof Error ? error.message : JSON.stringify(error)));
     }
   };
 
@@ -243,7 +282,17 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <WorkoutContext.Provider value={{ routines, workouts, loading, saveRoutine, addWorkout, updateWorkoutLog, addPlannedWorkout, refreshData: fetchData }}>
+    <WorkoutContext.Provider value={{
+      routines,
+      workouts,
+      loading,
+      saveRoutine,
+      deleteRoutine,
+      addWorkout,
+      updateWorkoutLog,
+      addPlannedWorkout,
+      refreshData: fetchData
+    }}>
       {children}
     </WorkoutContext.Provider>
   );

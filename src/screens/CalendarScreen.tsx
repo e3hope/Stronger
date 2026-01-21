@@ -13,6 +13,13 @@ export default function CalendarScreen() {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const changeMonth = (increment: number) => {
+    const newDate = new Date(currentMonth);
+    newDate.setMonth(newDate.getMonth() + increment);
+    setCurrentMonth(newDate);
+  };
 
   const performLogout = async () => {
     try {
@@ -46,11 +53,16 @@ export default function CalendarScreen() {
     }
   };
 
-  const markedDates = workouts.reduce((acc, workout) => {
+  // Merge workouts into markedDates
+  const markedDates: any = {};
+
+  workouts.forEach(workout => {
     const date = workout.date.split('T')[0];
-    acc[date] = { marked: true, dotColor: Colors.primary };
-    return acc;
-  }, {} as any);
+    markedDates[date] = { 
+      marked: true, 
+      dotColor: Colors.primary 
+    };
+  });
 
   if (selectedDate) {
     markedDates[selectedDate] = { 
@@ -65,6 +77,27 @@ export default function CalendarScreen() {
   );
 
   const handleAddRoutine = () => {
+    if (routines.length === 0) {
+      if (Platform.OS === 'web') {
+        // @ts-ignore
+        if (window.confirm('저장된 루틴이 없습니다. 루틴을 추가하시겠습니까?')) {
+          router.push('/routines');
+        }
+      } else {
+        Alert.alert(
+          '루틴 없음',
+          '저장된 루틴이 없습니다.\n루틴을 추가하시겠습니까?',
+          [
+            { text: '취소', style: 'cancel' },
+            {
+              text: '이동',
+              onPress: () => router.push('/routines'),
+            },
+          ]
+        );
+      }
+      return;
+    }
     setModalVisible(true);
   };
 
@@ -72,6 +105,10 @@ export default function CalendarScreen() {
     await addPlannedWorkout(selectedDate, routineId);
     setModalVisible(false);
   };
+
+  const year = currentMonth.getFullYear();
+  const month = currentMonth.getMonth() + 1;
+  const currentMonthString = `${year}-${String(month).padStart(2, '0')}-01`;
 
   return (
     <View style={styles.container}>
@@ -81,9 +118,55 @@ export default function CalendarScreen() {
           <Ionicons name="log-out-outline" size={24} color="white" />
         </TouchableOpacity>
       </View>
+
       <Calendar
+        current={currentMonthString}
         onDayPress={(day: any) => setSelectedDate(day.dateString)}
+        onMonthChange={(month: any) => {
+          setCurrentMonth(new Date(month.dateString));
+        }}
         markedDates={markedDates}
+        dayComponent={({date, state, marking}: any) => {
+          if (!date) return <View />;
+          
+          const jsDate = new Date(date.year, date.month - 1, date.day);
+          const day = jsDate.getDay();
+          const isSelected = state === 'selected' || (marking && marking.selected);
+          const isToday = state === 'today';
+          const hasWorkout = marking && marking.marked;
+          const isDisabled = state === 'disabled';
+          
+          let textColor = '#d9e1e8'; // Default
+          if (isDisabled) {
+            textColor = '#2d4150';
+          } else {
+            if (day === 0) textColor = '#ff4444'; // Sun
+            else if (day === 6) textColor = '#448AFF'; // Sat
+          }
+          
+          if (isToday) textColor = Colors.primary;
+          if (isSelected) textColor = 'white';
+
+          return (
+            <TouchableOpacity 
+              onPress={() => setSelectedDate(date.dateString)} 
+              style={{alignItems: 'center', justifyContent: 'center', width: 32, height: 32}}
+            >
+              <View style={[
+                {width: 30, height: 30, alignItems: 'center', justifyContent: 'center', borderRadius: 15},
+                isSelected && {backgroundColor: Colors.primary}
+              ]}>
+                <Text style={{color: textColor, fontWeight: isToday ? 'bold' : 'normal'}}>{date.day}</Text>
+              </View>
+              {hasWorkout && !isSelected && (
+                <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.primary, marginTop: 2}} />
+              )}
+              {hasWorkout && isSelected && (
+                <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: 'white', marginTop: 2}} />
+              )}
+            </TouchableOpacity>
+          );
+        }}
         theme={{
           backgroundColor: '#121212',
           calendarBackground: '#121212',

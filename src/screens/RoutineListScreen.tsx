@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useWorkout } from '../context/WorkoutContext';
@@ -7,7 +7,7 @@ import { Routine } from '../types';
 import { styles } from './RoutineListScreen.styles';
 
 export default function RoutineListScreen() {
-  const { routines, refreshData } = useWorkout();
+  const { routines, refreshData, deleteRoutine } = useWorkout();
   const router = useRouter();
 
   useFocusEffect(
@@ -16,6 +16,20 @@ export default function RoutineListScreen() {
     }, [])
   );
 
+  const handleDelete = async (id: number) => {
+    if (Platform.OS === 'web') {
+      // @ts-ignore
+      if (window.confirm('정말 이 루틴을 삭제하시겠습니까?')) {
+        await deleteRoutine(id);
+      }
+    } else {
+      Alert.alert('루틴 삭제', '정말 이 루틴을 삭제하시겠습니까?', [
+        { text: '취소', style: 'cancel' },
+        { text: '삭제', style: 'destructive', onPress: async () => await deleteRoutine(id) }
+      ]);
+    }
+  };
+
   const renderItem = ({ item }: { item: Routine }) => (
     <TouchableOpacity 
       style={styles.card}
@@ -23,7 +37,9 @@ export default function RoutineListScreen() {
     >
       <View style={styles.cardHeader}>
         <Text style={styles.routineName}>{item.name}</Text>
-        <Text style={styles.duration}>{item.estimatedDuration} min</Text>
+        <TouchableOpacity onPress={() => handleDelete(item.id)} style={{ padding: 4 }}>
+          <Ionicons name="trash-outline" size={20} color="#ff4444" />
+        </TouchableOpacity>
       </View>
       <View style={styles.tags}>
         {item.tags?.map((tag, index) => (

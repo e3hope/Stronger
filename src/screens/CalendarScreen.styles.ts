@@ -110,4 +110,29 @@ export const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
+  customHeaderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: '#121212',
+  },
+  customHeaderTitle: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  dayNamesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: '#121212',
+    paddingBottom: 10,
+  },
+  dayNameText: {
+    color: '#d9e1e8',
+    fontSize: 14,
+    width: 32,
+    textAlign: 'center',
+  },
 });

@@ -27,7 +27,6 @@ export interface Routine {
   name: string;
   exercises: Exercise[]; // Mapped from exercises_detail (JSONB)
   tags?: string[]; // UI only
-  estimatedDuration?: number; // UI only
 }
 
 export interface WorkoutLog {
