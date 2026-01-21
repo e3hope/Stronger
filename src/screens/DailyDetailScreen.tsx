@@ -278,7 +278,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
                             >
                               <Ionicons name="remove" size={16} color="white" />
                             </TouchableOpacity>
-                            <Text style={styles.setCountText}>{ex.sets.length}</Text>
+                            <Text style={styles.setCountText}>1</Text>
                             <TouchableOpacity 
                               style={styles.setControlButton}
                               onPress={() => updateSetCount(ex.id, ex.sets.length + 1)}
@@ -360,54 +360,12 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
       </View>
 
       <ScrollView style={styles.content}>
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>VOLUME</Text>
-            <Text style={styles.statValue}>
-              {editedWorkout.volume ? (
-                <>
-                  {editedWorkout.volume.toLocaleString()} <Text style={styles.statUnit}>kg</Text>
-                </>
-              ) : (
-                <Text style={styles.statValue}>-</Text>
-              )}
-            </Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>SETS</Text>
-            <Text style={styles.statValue}>
-              {editedWorkout.exercises.reduce((acc, ex) => acc + (ex.sets?.length || 0), 0)}
-            </Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>DURATION</Text>
-            <Text style={styles.statValue}>
-              {editedWorkout.duration ? (
-                <>
-                  {editedWorkout.duration} <Text style={styles.statUnit}>m</Text>
-                </>
-              ) : (
-                <Text style={styles.statValue}>-</Text>
-              )}
-            </Text>
-          </View>
-        </View>
-
         {/* Memo Display */}
         <View style={[styles.memoSection, { marginHorizontal: 16 }]}>
           <Text style={styles.memoTitle}>MEMO</Text>
           <Text style={[styles.memoText, !editedWorkout.memo && { color: '#666', fontStyle: 'italic' }]}>
             {editedWorkout.memo || 'No memo available.'}
           </Text>
-        </View>
-
-        <View style={styles.tableHeader}>
-          <Text style={styles.tableHeaderTitle}>EXERCISE</Text>
-          <View style={styles.tableHeaderStats}>
-            <Text style={styles.tableHeaderStat}>SETS</Text>
-            <Text style={styles.tableHeaderStat}>WEIGHT</Text>
-            <Text style={styles.tableHeaderStat}>REPS</Text>
-          </View>
         </View>
 
         <View style={styles.exerciseList}>

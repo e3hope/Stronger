@@ -293,7 +293,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
                           >
                             <Ionicons name="remove" size={16} color="white" />
                           </TouchableOpacity>
-                          <Text style={styles.setCountText}>{ex.sets.length}</Text>
+                          <Text style={styles.setCountText}>1</Text>
                           <TouchableOpacity 
                             style={styles.setControlButton}
                             onPress={() => updateSetCount(ex.id, ex.sets.length + 1)}

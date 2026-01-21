@@ -11,7 +11,8 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    backgroundColor: '#1E1E1E',
+    paddingBottom: 0,
+    // Removed background color to blend with container
   },
   headerTitle: {
     color: 'white',

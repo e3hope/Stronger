@@ -4,7 +4,7 @@ import { Colors } from '../colors';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.primary,
+    backgroundColor: '#121212',
   },
   header: {
     flexDirection: 'row',
@@ -14,7 +14,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
-    backgroundColor: Colors.primary,
+    backgroundColor: '#121212',
   },
   headerTitle: {
     color: 'white',
@@ -32,61 +32,6 @@ export const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
-  statsGrid: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 12,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: '#1E1E1E',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#333',
-    alignItems: 'center',
-    shadowColor: Colors.primary,
-  },
-  statLabel: {
-    color: '#888',
-    fontSize: 10,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  statValue: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  statUnit: {
-    fontSize: 12,
-    fontWeight: 'normal',
-    color: Colors.primary,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 24,
-    paddingBottom: 8,
-    marginBottom: 8,
-  },
-  tableHeaderTitle: {
-    color: '#888',
-    fontSize: 10,
-    fontWeight: 'bold',
-  },
-  tableHeaderStats: {
-    flexDirection: 'row',
-    gap: 16,
-    paddingRight: 10,
-  },
-  tableHeaderStat: {
-    color: '#888',
-    fontSize: 10,
-    fontWeight: 'bold',
-    width: 40,
-    textAlign: 'center',
-  },
   exerciseList: {
     paddingHorizontal: 16,
     paddingBottom: 40,
@@ -97,7 +42,7 @@ export const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: Colors.primary,
     shadowColor: Colors.primary,
   },
   exerciseInfo: {
@@ -168,6 +113,7 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     borderRadius: 12,
     borderWidth: 1,
+    borderColor: Colors.primary,
     shadowColor: Colors.primary,
   },
   memoTitle: {
