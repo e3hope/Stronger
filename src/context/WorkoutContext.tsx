@@ -11,6 +11,7 @@ interface WorkoutContextType {
   deleteRoutine: (id: number) => Promise<void>;
   addWorkout: (workout: WorkoutLog) => Promise<void>;
   updateWorkoutLog: (workout: WorkoutLog) => Promise<void>;
+  deleteWorkoutLog: (id: number) => Promise<void>;
   addPlannedWorkout: (date: string, routineId: number) => Promise<void>;
   refreshData: () => Promise<void>;
 }
@@ -253,6 +254,26 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const deleteWorkoutLog = async (id: number) => {
+    try {
+      if (!publicUserId) {
+        Alert.alert('Error', '로그인이 필요합니다.');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('workout_logs')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchData();
+    } catch (error) {
+      console.error('Error deleting workout log:', error);
+      Alert.alert('Error', 'Failed to delete workout log');
+    }
+  };
+
   const addPlannedWorkout = async (date: string, routineId: number) => {
     try {
       if (!publicUserId) {
@@ -290,6 +311,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
       deleteRoutine,
       addWorkout,
       updateWorkoutLog,
+      deleteWorkoutLog,
       addPlannedWorkout,
       refreshData: fetchData
     }}>

@@ -9,9 +9,10 @@ interface DailyDetailScreenProps {
   workout: WorkoutLog | null;
   onBack: () => void;
   onUpdate?: (workout: WorkoutLog) => Promise<void>;
+  onDelete?: (id: number) => Promise<void>;
 }
 
-export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDetailScreenProps) {
+export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete }: DailyDetailScreenProps) {
   if (!workout) return null;
 
   const [editedWorkout, setEditedWorkout] = useState<WorkoutLog>(workout);
@@ -162,6 +163,27 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
     }
   };
 
+  const handleDelete = () => {
+    if (!workout || !onDelete) return;
+    
+    const performDelete = async () => {
+      await onDelete(workout.id);
+      onBack();
+    };
+
+    if (Platform.OS === 'web') {
+      // @ts-ignore
+      if (window.confirm('이 운동 기록을 삭제하시겠습니까?')) {
+        performDelete();
+      }
+    } else {
+      Alert.alert('기록 삭제', '이 운동 기록을 삭제하시겠습니까?', [
+        { text: '취소', style: 'cancel' },
+        { text: '삭제', style: 'destructive', onPress: performDelete }
+      ]);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -169,9 +191,16 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate }: DailyDe
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{dateStr}</Text>
-        <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          {onDelete && (
+            <TouchableOpacity onPress={handleDelete} style={[styles.iconButton, { marginRight: 8 }]}>
+              <Ionicons name="trash-outline" size={24} color="#ff4444" />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.content}>

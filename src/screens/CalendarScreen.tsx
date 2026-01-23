@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase';
 import { Colors } from '../colors';
 
 export default function CalendarScreen() {
-  const { workouts, routines, addPlannedWorkout } = useWorkout();
+  const { workouts, routines, addPlannedWorkout, deleteWorkoutLog } = useWorkout();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -49,6 +49,24 @@ export default function CalendarScreen() {
           style: 'destructive',
           onPress: performLogout,
         },
+      ]);
+    }
+  };
+  
+  const handleDeleteWorkout = async (id: number) => {
+    const performDelete = async () => {
+      await deleteWorkoutLog(id);
+    };
+
+    if (Platform.OS === 'web') {
+      // @ts-ignore
+      if (window.confirm('이 운동 기록을 삭제하시겠습니까?')) {
+        performDelete();
+      }
+    } else {
+      Alert.alert('기록 삭제', '이 운동 기록을 삭제하시겠습니까?', [
+        { text: '취소', style: 'cancel' },
+        { text: '삭제', style: 'destructive', onPress: performDelete }
       ]);
     }
   };
@@ -198,7 +216,18 @@ export default function CalendarScreen() {
                 router.push(`/daily/${workout.id}`);
               }}
             >
-              <Text style={styles.routineName}>{workout.routineName}</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <Text style={styles.routineName}>{workout.routineName}</Text>
+                <TouchableOpacity 
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleDeleteWorkout(workout.id);
+                  }}
+                  style={{ padding: 4, marginTop: -4, marginRight: -4 }}
+                >
+                  <Ionicons name="trash-outline" size={20} color="#ff4444" />
+                </TouchableOpacity>
+              </View>
               <Text style={styles.workoutStats}>
                 Volume: {workout.volume}kg • PRs: {workout.prs}
               </Text>

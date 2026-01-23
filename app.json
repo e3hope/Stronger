@@ -18,7 +18,7 @@
     "android": {
       "package": "com.stronger.stronger",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/android-icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true
