@@ -152,11 +152,6 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     padding: 0,
   },
-  exerciseType: {
-    color: '#666',
-    fontSize: 12,
-    marginTop: 2,
-  },
   setsContainer: {
     padding: 12,
   },

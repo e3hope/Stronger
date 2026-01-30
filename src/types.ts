@@ -11,6 +11,7 @@ export interface Exercise {
   category: string;
   type: string; // 'Compound', 'Isolation', etc.
   sets: Set[];
+  memo?: string;
 }
 
 export interface User {

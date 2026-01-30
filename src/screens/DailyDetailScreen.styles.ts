@@ -72,8 +72,18 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 2,
   },
-  setListContainer: {
-    marginTop: 4,
+  exerciseMemoContainer: {
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  exerciseMemoInput: {
+    backgroundColor: '#2C2C2C',
+    color: 'white',
+    borderRadius: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    fontSize: 12,
   },
   setRow: {
     flexDirection: 'row',
@@ -201,11 +211,6 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     padding: 0,
-  },
-  exerciseType: {
-    color: Colors.primary,
-    fontSize: 12,
-    marginTop: 2,
   },
   setsContainer: {
     padding: 12,

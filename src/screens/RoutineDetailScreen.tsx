@@ -232,8 +232,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
                       onChangeText={(text) => updateExercise(ex.id, { name: text })}
                       editable={reorderSelectedId !== ex.id} // Disable editing name while reordering
                     />
-                    <Text style={styles.exerciseType}>{ex.category} · {ex.type}</Text>
-                  </View>
+                                      </View>
                 </View>
                 
                 {reorderSelectedId === ex.id ? (

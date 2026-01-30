@@ -251,8 +251,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
                       onChangeText={(text) => updateExercise(ex.id, { name: text })}
                       editable={reorderSelectedId !== ex.id}
                     />
-                    <Text style={styles.exerciseType}>{ex.category} · {ex.type}</Text>
-                  </View>
+                                      </View>
                 </View>
                 
                 {reorderSelectedId === ex.id ? (
@@ -283,6 +282,17 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
                     <Ionicons name="close" size={18} color="#f44336" />
                   </TouchableOpacity>
                 )}
+              </View>
+
+              <View style={styles.exerciseMemoContainer}>
+                <TextInput
+                  style={styles.exerciseMemoInput}
+                  placeholder="Memo..."
+                  placeholderTextColor="#666"
+                  value={ex.memo || ''}
+                  onChangeText={(text) => updateExercise(ex.id, { memo: text })}
+                  multiline={false}
+                />
               </View>
 
               <View style={styles.setsContainer}>
