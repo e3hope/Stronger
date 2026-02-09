@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform, KeyboardAvoidingView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { WorkoutLog, Exercise } from '../types';
 import { styles } from './DailyDetailScreen.styles';
@@ -17,6 +17,9 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
 
   const [editedWorkout, setEditedWorkout] = useState<WorkoutLog>(workout);
   const [reorderSelectedId, setReorderSelectedId] = useState<string | null>(null);
+  const memoInputRef = useRef<TextInput>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const memoLayoutY = useRef<number>(0);
 
   useEffect(() => {
     if (workout) {
@@ -203,20 +206,40 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
         </View>
       </View>
 
-      <ScrollView style={styles.content}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      >
+      <ScrollView 
+        ref={scrollViewRef}
+        style={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.section}>
           {/* Memo Section */}
-          <View style={styles.memoSection}>
+          <Pressable 
+            style={styles.memoSection} 
+            onPress={() => memoInputRef.current?.focus()}
+            onLayout={(event) => {
+              memoLayoutY.current = event.nativeEvent.layout.y;
+            }}
+          >
             <Text style={styles.memoTitle}>MEMO</Text>
             <TextInput
+              ref={memoInputRef}
               style={styles.memoInput}
               multiline
               placeholder="Write your workout notes here..."
               placeholderTextColor="#666"
               value={editedWorkout.memo || ''}
               onChangeText={(text) => setEditedWorkout(prev => ({ ...prev, memo: text }))}
+              onFocus={() => {
+                // 약간의 여유를 두고 스크롤 이동
+                scrollViewRef.current?.scrollTo({ y: Math.max(0, memoLayoutY.current - 20), animated: true });
+              }}
             />
-          </View>
+          </Pressable>
 
           {editedWorkout.exercises.map((ex, index) => (
             <View 
@@ -362,6 +385,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
         </View>
         <View style={{ height: 100 }} />
       </ScrollView>
+      </KeyboardAvoidingView>
 
       <View style={styles.fabContainer}>
         <TouchableOpacity style={styles.fab} onPress={handleAddExercise}>
