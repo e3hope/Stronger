@@ -22,6 +22,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 10,
   },
+  deleteButton: {
+    padding: 4,
+  },
   routineName: {
     fontSize: 18,
     fontWeight: 'bold',

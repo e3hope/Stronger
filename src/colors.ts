@@ -8,4 +8,9 @@ export const Colors = {
   textSecondary: '#888888',
   danger: '#ff4444',
   blue: '#2196F3', // Legacy
+  
+  // Calendar specific
+  calendarTextDefault: '#d9e1e8',
+  calendarTextDisabled: '#2d4150',
+  calendarSaturday: '#448AFF',
 };

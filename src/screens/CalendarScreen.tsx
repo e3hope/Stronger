@@ -154,12 +154,12 @@ export default function CalendarScreen() {
           const hasWorkout = marking && marking.marked;
           const isDisabled = state === 'disabled';
           
-          let textColor = '#d9e1e8'; // Default
+          let textColor = Colors.calendarTextDefault; // Default
           if (isDisabled) {
-            textColor = '#2d4150';
+            textColor = Colors.calendarTextDisabled;
           } else {
-            if (day === 0) textColor = '#ff4444'; // Sun
-            else if (day === 6) textColor = '#448AFF'; // Sat
+            if (day === 0) textColor = Colors.danger; // Sun
+            else if (day === 6) textColor = Colors.calendarSaturday; // Sat
           }
           
           if (isToday) textColor = Colors.primary;
@@ -192,8 +192,8 @@ export default function CalendarScreen() {
           selectedDayBackgroundColor: Colors.primary,
           selectedDayTextColor: '#ffffff',
           todayTextColor: Colors.primary,
-          dayTextColor: '#d9e1e8',
-          textDisabledColor: '#2d4150',
+          dayTextColor: Colors.calendarTextDefault,
+          textDisabledColor: Colors.calendarTextDisabled,
           dotColor: Colors.primary,
           selectedDotColor: '#ffffff',
           arrowColor: 'white',

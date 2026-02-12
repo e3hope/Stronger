@@ -254,4 +254,44 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
+  reorderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  moveButton: {
+    padding: 8,
+  },
+  confirmButton: {
+    padding: 6,
+    backgroundColor: Colors.primary,
+    borderRadius: 4,
+    marginLeft: 4,
+  },
+  setIndexContainer: {
+    width: 100,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  setInputLayout: {
+    flex: 1,
+    marginLeft: 8,
+  },
+  removeSetButton: {
+    width: 30,
+    alignItems: 'flex-end',
+  },
+  footerSpacer: {
+    height: 100,
+  },
+  setHeaderTextFixed: {
+    width: 100,
+  },
+  setHeaderTextFlex: {
+    flex: 1,
+  },
+  headerSpacer: {
+    width: 30,
+  },
 });

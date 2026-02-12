@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useWorkout } from '../context/WorkoutContext';
 import { Routine } from '../types';
 import { styles } from './RoutineListScreen.styles';
+import { Colors } from '../colors';
 
 export default function RoutineListScreen() {
   const { routines, refreshData, deleteRoutine } = useWorkout();
@@ -37,8 +38,8 @@ export default function RoutineListScreen() {
     >
       <View style={styles.cardHeader}>
         <Text style={styles.routineName}>{item.name}</Text>
-        <TouchableOpacity onPress={() => handleDelete(item.id)} style={{ padding: 4 }}>
-          <Ionicons name="trash-outline" size={20} color="#ff4444" />
+        <TouchableOpacity onPress={() => handleDelete(item.id)} style={styles.deleteButton}>
+          <Ionicons name="trash-outline" size={20} color={Colors.danger} />
         </TouchableOpacity>
       </View>
       <View style={styles.tags}>
@@ -69,7 +70,7 @@ export default function RoutineListScreen() {
           style={styles.fab} 
           onPress={() => router.push('/routine/new')}
         >
-          <Ionicons name="add" size={24} color="#121212" />
+          <Ionicons name="add" size={24} color={Colors.background} />
           <Text style={styles.fabText}>New Routine</Text>
         </TouchableOpacity>
       </View>

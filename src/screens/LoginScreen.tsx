@@ -3,6 +3,7 @@ import { View, TextInput, TouchableOpacity, Text, Alert, ActivityIndicator } fro
 import { supabase } from '../lib/supabase';
 import { useRouter } from 'expo-router';
 import { styles } from './LoginScreen.styles';
+import { Colors } from '../colors';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -45,7 +46,7 @@ export default function LoginScreen() {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          placeholderTextColor="#888"
+          placeholderTextColor={Colors.textSecondary}
           onChangeText={setEmail}
           value={email}
           autoCapitalize="none"
@@ -58,7 +59,7 @@ export default function LoginScreen() {
           ref={passwordInputRef}
           style={styles.input}
           placeholder="Password"
-          placeholderTextColor="#888"
+          placeholderTextColor={Colors.textSecondary}
           secureTextEntry
           onChangeText={setPassword}
           value={password}
@@ -69,7 +70,7 @@ export default function LoginScreen() {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={signInWithEmail} disabled={loading}>
-          {loading ? <ActivityIndicator color="#121212" /> : <Text style={styles.buttonText}>로그인</Text>}
+          {loading ? <ActivityIndicator color={Colors.background} /> : <Text style={styles.buttonText}>로그인</Text>}
         </TouchableOpacity>
         <TouchableOpacity style={[styles.button, styles.outlineButton]} onPress={() => router.push('/register')} disabled={loading}>
           <Text style={[styles.buttonText, styles.outlineButtonText]}>회원가입</Text>

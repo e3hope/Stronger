@@ -236,24 +236,24 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
                 </View>
                 
                 {reorderSelectedId === ex.id ? (
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <View style={styles.reorderActions}>
                     <TouchableOpacity 
                       onPress={() => moveExercise(ex.id, 'up')} 
-                      style={{ padding: 8, opacity: index === 0 ? 0.3 : 1 }}
+                      style={[styles.moveButton, { opacity: index === 0 ? 0.3 : 1 }]}
                       disabled={index === 0}
                     >
                       <Ionicons name="arrow-up" size={20} color={Colors.primary} />
                     </TouchableOpacity>
                     <TouchableOpacity 
                       onPress={() => moveExercise(ex.id, 'down')} 
-                      style={{ padding: 8, opacity: index === exercises.length - 1 ? 0.3 : 1 }}
+                      style={[styles.moveButton, { opacity: index === exercises.length - 1 ? 0.3 : 1 }]}
                       disabled={index === exercises.length - 1}
                     >
                       <Ionicons name="arrow-down" size={20} color={Colors.primary} />
                     </TouchableOpacity>
                     <TouchableOpacity 
                       onPress={() => setReorderSelectedId(null)} 
-                      style={{ padding: 6, backgroundColor: Colors.primary, borderRadius: 4, marginLeft: 4 }}
+                      style={styles.confirmButton}
                     >
                       <Ionicons name="checkmark" size={16} color="white" />
                     </TouchableOpacity>
@@ -267,14 +267,14 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
 
               <View style={styles.setsContainer}>
                 <View style={styles.setHeaderRow}>
-                  <Text style={[styles.setHeaderText, { width: 100 }]}>SET</Text>
-                  <Text style={[styles.setHeaderText, { flex: 1 }]}>KG</Text>
-                  <Text style={[styles.setHeaderText, { flex: 1 }]}>REPS</Text>
-                  <View style={{ width: 30 }} />
+                  <Text style={[styles.setHeaderText, styles.setHeaderTextFixed]}>SET</Text>
+                  <Text style={[styles.setHeaderText, styles.setHeaderTextFlex]}>KG</Text>
+                  <Text style={[styles.setHeaderText, styles.setHeaderTextFlex]}>REPS</Text>
+                  <View style={styles.headerSpacer} />
                 </View>
                 {ex.sets.map((set, idx) => (
                   <View key={set.id} style={styles.setRow}>
-                    <View style={{ width: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={styles.setIndexContainer}>
                       {idx === 0 ? (
                         <View style={styles.setControlContainer}>
                           <TouchableOpacity 
@@ -296,7 +296,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
                       )}
                     </View>
                     <TextInput
-                      style={[styles.setInput, { flex: 1, marginLeft: 8 }]} 
+                      style={[styles.setInput, styles.setInputLayout]} 
                       keyboardType="numeric"
                       value={set.weight === 0 ? '' : set.weight.toString()}
                       placeholder="0"
@@ -304,7 +304,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
                       onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'weight', text)}
                     />
                     <TextInput
-                      style={[styles.setInput, { flex: 1, marginLeft: 8 }]} 
+                      style={[styles.setInput, styles.setInputLayout]} 
                       keyboardType="numeric"
                       value={set.reps === 0 ? '' : set.reps.toString()}
                       placeholder="0"
@@ -312,7 +312,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
                       onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'reps', text)}
                     />
                     <TouchableOpacity  
-                      style={{ width: 30, alignItems: 'flex-end' }}
+                      style={styles.removeSetButton}
                       onPress={() => removeSet(ex.id, set.id)}
                     >
                       {idx !== 0 && <Ionicons name="close" size={20} color="#666" />}
@@ -331,7 +331,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
           )}
         </View>
 
-        <View style={{ height: 100 }} /> 
+        <View style={styles.footerSpacer} /> 
       </ScrollView>
 
       {/* Floating Action Button for Add Exercise */}
