@@ -7,6 +7,7 @@ interface WorkoutContextType {
   routines: Routine[];
   workouts: WorkoutLog[];
   loading: boolean;
+  hasMore: boolean;
   saveRoutine: (routine: Routine) => Promise<void>;
   deleteRoutine: (id: number) => Promise<void>;
   addWorkout: (workout: WorkoutLog) => Promise<void>;
@@ -14,6 +15,7 @@ interface WorkoutContextType {
   deleteWorkoutLog: (id: number) => Promise<void>;
   addPlannedWorkout: (date: string, routineId: number) => Promise<void>;
   refreshData: () => Promise<void>;
+  loadMoreWorkouts: () => Promise<void>;
 }
 
 const WorkoutContext = createContext<WorkoutContextType | undefined>(undefined);
@@ -22,16 +24,34 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [workouts, setWorkouts] = useState<WorkoutLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
   const [publicUserId, setPublicUserId] = useState<number | null>(null);
+  const PAGE_SIZE = 20;
 
-  // 데이터 불러오기
+  // Helper to fetch logs with pagination
+  const fetchLogs = async (userId: number, pageNum: number) => {
+    const from = pageNum * PAGE_SIZE;
+    const to = from + PAGE_SIZE - 1;
+
+    const { data: logsData, error: logsError } = await supabase
+      .from('workout_logs')
+      .select('*')
+      .order('performed_at', { ascending: false })
+      .range(from, to)
+      .eq('user_id', userId);
+
+    if (logsError) throw logsError;
+    return logsData || [];
+  };
+
+  // 데이터 불러오기 (Initial Load / Refresh)
   const fetchData = async () => {
     try {
       setLoading(true);
       
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        // 로그인 안 된 경우 빈 데이터
         setRoutines([]);
         setWorkouts([]);
         setPublicUserId(null);
@@ -39,10 +59,10 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // 0. Ensure public user exists and get integer ID
+      // 0. Ensure public user exists
       let currentPublicUserId: number | null = null;
-      
-      const { data: existingUser, error: findError } = await supabase
+      // ... (Existing user check logic) ...
+      const { data: existingUser } = await supabase
         .from('users')
         .select('id')
         .eq('auth_id', user.id)
@@ -51,34 +71,27 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
       if (existingUser) {
         currentPublicUserId = existingUser.id;
       } else {
-        // Create user if not exists
-        const { data: newUser, error: createError } = await supabase
+        const { data: newUser } = await supabase
           .from('users')
           .insert({ auth_id: user.id })
           .select('id')
           .single();
-        
-        if (createError) {
-          console.error('Error creating user:', createError);
-          // throw createError; // Handle gracefully?
-        } else {
-          currentPublicUserId = newUser.id;
-        }
+        currentPublicUserId = newUser?.id || null;
       }
 
       setPublicUserId(currentPublicUserId);
 
       if (!currentPublicUserId) {
-        console.error('Failed to resolve public user ID');
         setLoading(false);
         return;
       }
 
-      // 1. Routines 조회
+      // 1. Routines 조회 (All at once for now)
       const { data: routinesData, error: routinesError } = await supabase
         .from('routines')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .eq('user_id', currentPublicUserId);
 
       if (routinesError) throw routinesError;
 
@@ -86,49 +99,70 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         id: r.id,
         user_id: r.user_id,
         name: r.name,
-        exercises: r.exercises_detail, // JSONB 자동 파싱됨
-        tags: [], // UI only
+        exercises: r.exercises_detail,
+        tags: [],
       }));
       setRoutines(formattedRoutines);
 
-      // 2. Workout Logs 조회
-      const { data: logsData, error: logsError } = await supabase
-        .from('workout_logs')
-        .select('*')
-        .order('performed_at', { ascending: false });
-
-      if (logsError) throw logsError;
-
-      const formattedLogs: WorkoutLog[] = (logsData || []).map(l => {
-        // 루틴 이름 찾기
-        const relatedRoutine = formattedRoutines.find(r => r.id === l.routine_id);
-        
-        // 볼륨 계산
-        const volume = (l.exercises_log || []).reduce((acc: number, ex: any) => {
-          const exVolume = (ex.sets || []).reduce((sAcc: number, set: any) => sAcc + (set.weight * set.reps), 0);
-          return acc + exVolume;
-        }, 0);
-
-        return {
-          id: l.id,
-          user_id: l.user_id,
-          routine_id: l.routine_id,
-          routineName: relatedRoutine ? relatedRoutine.name : '-',
-          date: l.performed_at,
-          exercises: l.exercises_log,
-          duration: 60, // Default
-          volume: volume,
-          prs: 0,
-          memo: l.memo // DB column
-        };
-      });
+      // 2. Workout Logs 조회 (Page 0)
+      const logsData = await fetchLogs(currentPublicUserId, 0);
+      
+      const formattedLogs = processLogs(logsData, formattedRoutines);
       setWorkouts(formattedLogs);
+      setPage(0);
+      setHasMore(logsData.length === PAGE_SIZE);
 
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadMoreWorkouts = async () => {
+    if (!hasMore || loading || !publicUserId) return;
+
+    try {
+      // Don't set global loading true to avoid full screen spinner, maybe add separate loading state if needed
+      // but for infinite scroll, usually we just append.
+      
+      const nextPage = page + 1;
+      const logsData = await fetchLogs(publicUserId, nextPage);
+      
+      if (logsData.length > 0) {
+        const newLogs = processLogs(logsData, routines);
+        setWorkouts(prev => [...prev, ...newLogs]);
+        setPage(nextPage);
+        setHasMore(logsData.length === PAGE_SIZE);
+      } else {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.error('Error loading more workouts:', error);
+    }
+  };
+
+  const processLogs = (logsData: any[], currentRoutines: Routine[]): WorkoutLog[] => {
+    return logsData.map(l => {
+      const relatedRoutine = currentRoutines.find(r => r.id === l.routine_id);
+      const volume = (l.exercises_log || []).reduce((acc: number, ex: any) => {
+        const exVolume = (ex.sets || []).reduce((sAcc: number, set: any) => sAcc + (set.weight * set.reps), 0);
+        return acc + exVolume;
+      }, 0);
+
+      return {
+        id: l.id,
+        user_id: l.user_id,
+        routine_id: l.routine_id,
+        routineName: relatedRoutine ? relatedRoutine.name : '-',
+        date: l.performed_at,
+        exercises: l.exercises_log,
+        duration: 60,
+        volume: volume,
+        prs: 0,
+        memo: l.memo
+      };
+    });
   };
 
   useEffect(() => {
@@ -307,13 +341,15 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
       routines,
       workouts,
       loading,
+      hasMore,
       saveRoutine,
       deleteRoutine,
       addWorkout,
       updateWorkoutLog,
       deleteWorkoutLog,
       addPlannedWorkout,
-      refreshData: fetchData
+      refreshData: fetchData,
+      loadMoreWorkouts,
     }}>
       {children}
     </WorkoutContext.Provider>

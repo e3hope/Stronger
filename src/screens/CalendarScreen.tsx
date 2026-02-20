@@ -9,11 +9,12 @@ import { supabase } from '../lib/supabase';
 import { Colors } from '../colors';
 
 export default function CalendarScreen() {
-  const { workouts, routines, addPlannedWorkout, deleteWorkoutLog } = useWorkout();
+  const { workouts, routines, addPlannedWorkout, deleteWorkoutLog, loadMoreWorkouts, hasMore } = useWorkout();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
 
   const changeMonth = (increment: number) => {
     const newDate = new Date(currentMonth);
@@ -129,128 +130,191 @@ export default function CalendarScreen() {
   const currentMonthString = `${year}-${String(month).padStart(2, '0')}-01`;
 
   return (
-    <View style={styles.container}>
+    <View style={viewMode === 'list' ? styles.containerListMode : styles.container}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Stronger</Text>
-        <TouchableOpacity onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={24} color="white" />
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity onPress={() => setViewMode(prev => prev === 'calendar' ? 'list' : 'calendar')}>
+            <Ionicons name={viewMode === 'calendar' ? "list" : "calendar"} size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleLogout}>
+            <Ionicons name="log-out-outline" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
 
-      <Calendar
-        current={currentMonthString}
-        onDayPress={(day: any) => setSelectedDate(day.dateString)}
-        onMonthChange={(month: any) => {
-          setCurrentMonth(new Date(month.dateString));
-        }}
-        markedDates={markedDates}
-        dayComponent={({date, state, marking}: any) => {
-          if (!date) return <View />;
-          
-          const jsDate = new Date(date.year, date.month - 1, date.day);
-          const day = jsDate.getDay();
-          const isSelected = state === 'selected' || (marking && marking.selected);
-          const isToday = state === 'today';
-          const hasWorkout = marking && marking.marked;
-          const isDisabled = state === 'disabled';
-          
-          let textColor = Colors.calendarTextDefault; // Default
-          if (isDisabled) {
-            textColor = Colors.calendarTextDisabled;
-          } else {
-            if (day === 0) textColor = Colors.danger; // Sun
-            else if (day === 6) textColor = Colors.calendarSaturday; // Sat
-          }
-          
-          if (isToday) textColor = Colors.primary;
-          if (isSelected) textColor = 'white';
+      {viewMode === 'calendar' ? (
+        <>
+          <Calendar
+            current={currentMonthString}
+            onDayPress={(day: any) => setSelectedDate(day.dateString)}
+            onMonthChange={(month: any) => {
+              setCurrentMonth(new Date(month.dateString));
+            }}
+            markedDates={markedDates}
+            dayComponent={({date, state, marking}: any) => {
+              if (!date) return <View />;
+              
+              const jsDate = new Date(date.year, date.month - 1, date.day);
+              const day = jsDate.getDay();
+              const isSelected = state === 'selected' || (marking && marking.selected);
+              const isToday = state === 'today';
+              const hasWorkout = marking && marking.marked;
+              const isDisabled = state === 'disabled';
+              
+              let textColor = Colors.calendarTextDefault; // Default
+              if (isDisabled) {
+                textColor = Colors.calendarTextDisabled;
+              } else {
+                if (day === 0) textColor = Colors.danger; // Sun
+                else if (day === 6) textColor = Colors.calendarSaturday; // Sat
+              }
+              
+              if (isToday) textColor = Colors.primary;
+              if (isSelected) textColor = 'white';
 
-          return (
-            <TouchableOpacity 
-              onPress={() => setSelectedDate(date.dateString)} 
-              style={{alignItems: 'center', justifyContent: 'center', width: 32, height: 32}}
-            >
-              <View style={[
-                {width: 30, height: 30, alignItems: 'center', justifyContent: 'center', borderRadius: 15},
-                isSelected && {backgroundColor: Colors.primary}
-              ]}>
-                <Text style={{color: textColor, fontWeight: isToday ? 'bold' : 'normal'}}>{date.day}</Text>
-              </View>
-              {hasWorkout && !isSelected && (
-                <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.primary, marginTop: 2}} />
-              )}
-              {hasWorkout && isSelected && (
-                <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: 'white', marginTop: 2}} />
-              )}
-            </TouchableOpacity>
-          );
-        }}
-        theme={{
-          backgroundColor: '#121212',
-          calendarBackground: '#121212',
-          textSectionTitleColor: '#b6c1cd',
-          selectedDayBackgroundColor: Colors.primary,
-          selectedDayTextColor: '#ffffff',
-          todayTextColor: Colors.primary,
-          dayTextColor: Colors.calendarTextDefault,
-          textDisabledColor: Colors.calendarTextDisabled,
-          dotColor: Colors.primary,
-          selectedDotColor: '#ffffff',
-          arrowColor: 'white',
-          monthTextColor: 'white',
-          indicatorColor: 'white',
-        }}
-      />
-      
-      <ScrollView style={styles.workoutList}>
-        <Text style={styles.dateTitle}>
-          {selectedDate ? selectedDate : '날짜를 선택하세요'}
-        </Text>
-        
-        {selectedWorkouts.length > 0 ? (
-          selectedWorkouts.map(workout => (
-            <TouchableOpacity 
-              key={workout.id} 
-              style={styles.workoutCard}
-              onPress={() => {
-                router.push(`/daily/${workout.id}`);
-              }}
-            >
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Text style={styles.routineName}>{workout.routineName}</Text>
+              return (
                 <TouchableOpacity 
-                  onPress={(e) => {
-                    e.stopPropagation();
-                    handleDeleteWorkout(workout.id);
-                  }}
-                  style={{ padding: 4, marginTop: -4, marginRight: -4 }}
+                  onPress={() => setSelectedDate(date.dateString)} 
+                  style={{alignItems: 'center', justifyContent: 'center', width: 32, height: 32}}
                 >
-                  <Ionicons name="trash-outline" size={20} color="#ff4444" />
+                  <View style={[
+                    {width: 30, height: 30, alignItems: 'center', justifyContent: 'center', borderRadius: 15},
+                    isSelected && {backgroundColor: Colors.primary}
+                  ]}>
+                    <Text style={{color: textColor, fontWeight: isToday ? 'bold' : 'normal'}}>{date.day}</Text>
+                  </View>
+                  {hasWorkout && !isSelected && (
+                    <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: Colors.primary, marginTop: 2}} />
+                  )}
+                  {hasWorkout && isSelected && (
+                    <View style={{width: 4, height: 4, borderRadius: 2, backgroundColor: 'white', marginTop: 2}} />
+                  )}
                 </TouchableOpacity>
-              </View>
-              <Text style={styles.workoutStats}>
-                Volume: {workout.volume}kg • PRs: {workout.prs}
-              </Text>
-              {workout.memo ? (
-                <Text style={styles.memoText} numberOfLines={2}>
-                  {workout.memo}
-                </Text>
-              ) : null}
-            </TouchableOpacity>
-          ))
-        ) : (
-          selectedDate && (
-            <Text style={styles.emptyText}>운동 기록이 없습니다.</Text>
-          )
-        )}
+              );
+            }}
+            theme={{
+              backgroundColor: '#121212',
+              calendarBackground: '#121212',
+              textSectionTitleColor: '#b6c1cd',
+              selectedDayBackgroundColor: Colors.primary,
+              selectedDayTextColor: '#ffffff',
+              todayTextColor: Colors.primary,
+              dayTextColor: Colors.calendarTextDefault,
+              textDisabledColor: Colors.calendarTextDisabled,
+              dotColor: Colors.primary,
+              selectedDotColor: '#ffffff',
+              arrowColor: 'white',
+              monthTextColor: 'white',
+              indicatorColor: 'white',
+            }}
+          />
+          
+          <ScrollView style={styles.workoutList}>
+            <Text style={styles.dateTitle}>
+              {selectedDate ? selectedDate : '날짜를 선택하세요'}
+            </Text>
+            
+            {selectedWorkouts.length > 0 ? (
+              selectedWorkouts.map(workout => (
+                <TouchableOpacity 
+                  key={workout.id} 
+                  style={styles.workoutCard}
+                  onPress={() => {
+                    router.push(`/daily/${workout.id}`);
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Text style={styles.routineName}>{workout.routineName}</Text>
+                    <TouchableOpacity 
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        handleDeleteWorkout(workout.id);
+                      }}
+                      style={{ padding: 4, marginTop: -4, marginRight: -4 }}
+                    >
+                      <Ionicons name="trash-outline" size={20} color="#ff4444" />
+                    </TouchableOpacity>
+                  </View>
+                  <Text style={styles.workoutStats}>
+                    Volume: {workout.volume}kg • PRs: {workout.prs}
+                  </Text>
+                  {workout.memo ? (
+                    <Text style={styles.memoText} numberOfLines={2}>
+                      {workout.memo}
+                    </Text>
+                  ) : null}
+                </TouchableOpacity>
+              ))
+            ) : (
+              selectedDate && (
+                <Text style={styles.emptyText}>운동 기록이 없습니다.</Text>
+              )
+            )}
 
-        {selectedDate ? (
-          <TouchableOpacity style={styles.addButton} onPress={handleAddRoutine}>
-            <Ionicons name="add-circle" size={24} color="white" />
-            <Text style={styles.addButtonText}>루틴 추가하기</Text>
+            {selectedDate ? (
+              <TouchableOpacity style={styles.addButton} onPress={handleAddRoutine}>
+                <Ionicons name="add-circle" size={24} color="white" />
+                <Text style={styles.addButtonText}>루틴 추가하기</Text>
+              </TouchableOpacity>
+            ) : null}
+          </ScrollView>
+        </>
+      ) : (
+        <>
+          <FlatList
+            data={[...workouts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
+            keyExtractor={item => item.id.toString()}
+            contentContainerStyle={styles.listContainer}
+            onEndReached={loadMoreWorkouts}
+            onEndReachedThreshold={0.5}
+            renderItem={({ item }) => {
+              return (
+                <TouchableOpacity 
+                  style={styles.listCard}
+                  onPress={() => router.push(`/daily/${item.id}`)}
+                >
+                  <View style={styles.listCardHeader}>
+                    <Text style={styles.listDate}>
+                      {new Date(item.date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric' }).replace(/\//g, '. ')}
+                    </Text>
+                  </View>
+                  
+                  <Text style={styles.listTitle}>{item.routineName || 'No Routine Name'}</Text>
+                  
+                  <View style={styles.listContent}>
+                    {item.exercises.map((ex, idx) => (
+                      <View key={idx} style={styles.listExerciseRow}>
+                        <View style={styles.bulletPoint} />
+                        <Text style={styles.listExerciseText}>
+                          <Text style={styles.boldText}>{ex.name}</Text>: {ex.sets.map(s => `${s.weight}kg ${s.reps}회`).join(' * ')} {ex.sets.length > 0 ? `* ${ex.sets.length}세트` : ''}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  {item.memo ? (
+                    <>
+                      <View style={styles.divider} />
+                      <Text style={styles.listMemo} numberOfLines={2}>
+                        "{item.memo}"
+                      </Text>
+                    </>
+                  ) : null}
+                </TouchableOpacity>
+              );
+            }}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>저장된 운동 기록이 없습니다.</Text>
+            }
+          />
+          
+          <TouchableOpacity style={styles.fab} onPress={handleAddRoutine}>
+            <Ionicons name="add" size={30} color="#000" />
           </TouchableOpacity>
-        ) : null}
-      </ScrollView>
+        </>
+      )}
 
       {/* Routine Selection Modal */}
       <Modal

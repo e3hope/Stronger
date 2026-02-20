@@ -252,7 +252,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
               <View 
                 style={[
                   styles.exerciseHeader,
-                  reorderSelectedId === ex.id && { backgroundColor: 'rgba(33, 150, 243, 0.1)' }
+                  reorderSelectedId === ex.id && { backgroundColor: Colors.blueLight }
                 ]}
               >
                 <View style={styles.exerciseTitleRow}>
@@ -307,16 +307,6 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
                 )}
               </View>
 
-              <View style={styles.exerciseMemoContainer}>
-                <TextInput
-                  style={styles.exerciseMemoInput}
-                  placeholder="Memo..."
-                  placeholderTextColor="#666"
-                  value={ex.memo || ''}
-                  onChangeText={(text) => updateExercise(ex.id, { memo: text })}
-                  multiline={false}
-                />
-              </View>
 
               <View style={styles.setsContainer}>
                 <View style={styles.setHeaderRow}>

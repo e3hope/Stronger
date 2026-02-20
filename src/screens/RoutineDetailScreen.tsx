@@ -210,7 +210,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
               <View 
                 style={[
                   styles.exerciseHeader,
-                  reorderSelectedId === ex.id && { backgroundColor: 'rgba(33, 150, 243, 0.1)' }
+                  reorderSelectedId === ex.id && { backgroundColor: Colors.blueLight }
                 ]}
               >
                 <View style={styles.exerciseTitleRow}>

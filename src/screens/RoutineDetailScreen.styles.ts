@@ -54,7 +54,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
   },
   deleteButton: {
-    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+    backgroundColor: Colors.dangerLight,
     paddingVertical: 10,
     paddingHorizontal: 16,
     borderRadius: 8,
@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 12,
     borderWidth: 1,
-    borderColor: 'rgba(244, 67, 54, 0.3)',
+    borderColor: Colors.dangerMedium,
   },
   deleteButtonText: {
     color: '#ff4444',
@@ -81,7 +81,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: 'rgba(29, 233, 182, 0.3)',
+    borderColor: Colors.primaryBorder,
   },
   tagText: {
     color: Colors.primary,
@@ -117,7 +117,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: Colors.overlayLight,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
   },
@@ -138,7 +138,7 @@ export const styles = StyleSheet.create({
   exerciseDeleteButton: {
     padding: 6,
     borderRadius: 20,
-    backgroundColor: 'rgba(244, 67, 54, 0.12)',
+    backgroundColor: Colors.dangerLight,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -72,19 +72,6 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 2,
   },
-  exerciseMemoContainer: {
-    paddingHorizontal: 12,
-    paddingTop: 8,
-    paddingBottom: 4,
-  },
-  exerciseMemoInput: {
-    backgroundColor: '#2C2C2C',
-    color: 'white',
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    fontSize: 12,
-  },
   setRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -181,7 +168,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 12,
-    backgroundColor: 'rgba(0,0,0,0.2)',
+    backgroundColor: Colors.overlayLight,
     borderBottomWidth: 1,
     borderBottomColor: '#333',
   },
@@ -202,7 +189,7 @@ export const styles = StyleSheet.create({
   exerciseDeleteButton: {
     padding: 6,
     borderRadius: 20,
-    backgroundColor: 'rgba(244, 67, 54, 0.12)',
+    backgroundColor: Colors.dangerLight,
     alignItems: 'center',
     justifyContent: 'center',
   },
