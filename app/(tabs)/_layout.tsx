@@ -10,7 +10,6 @@ export default function TabLayout() {
       screenOptions={{
         headerStyle: {
           backgroundColor: '#121212',
-          height: 45, // Try to make it compact
           borderBottomWidth: 1,
           borderBottomColor: '#333',
           elevation: 0, // Remove shadow on Android
@@ -18,7 +17,6 @@ export default function TabLayout() {
         },
         headerTitleStyle: {
           color: '#fff',
-          fontSize: 16,
         },
         headerTitleAlign: 'left',
         tabBarStyle: {
