@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform, KeyboardAvoidingView, Pressable } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Platform, KeyboardAvoidingView, Pressable, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { WorkoutLog, Exercise } from '../types';
 import { styles } from './DailyDetailScreen.styles';
@@ -10,9 +10,10 @@ interface DailyDetailScreenProps {
   onBack: () => void;
   onUpdate?: (workout: WorkoutLog) => Promise<void>;
   onDelete?: (id: number) => Promise<void>;
+  loading?: boolean;
 }
 
-export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete }: DailyDetailScreenProps) {
+export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete, loading }: DailyDetailScreenProps) {
   if (!workout) return null;
 
   const [editedWorkout, setEditedWorkout] = useState<WorkoutLog>(workout);
@@ -27,7 +28,13 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
     }
   }, [workout]);
 
-  const dateStr = new Date(editedWorkout.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const dateObj = new Date(editedWorkout.date);
+  const year = dateObj.getFullYear();
+  const month = dateObj.getMonth() + 1;
+  const day = dateObj.getDate();
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const weekDay = days[dateObj.getDay()];
+  const dateStr = `${year}. ${month}. ${day} (${weekDay})`;
 
   // --- Editing Logic ---
 
@@ -159,10 +166,18 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
     setEditedWorkout(prev => ({ ...prev, exercises: newExercises }));
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const handleSave = async () => {
-    if (onUpdate) {
-      await onUpdate(editedWorkout);
-      onBack();
+    if (onUpdate && !isSaving) {
+      try {
+        setIsSaving(true);
+        await onUpdate(editedWorkout);
+        onBack();
+      } catch (error) {
+        console.error('Save failed:', error);
+        setIsSaving(false);
+      }
     }
   };
 
@@ -383,6 +398,13 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete 
           <Text style={styles.fabText}>Add Exercise</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Loading Overlay */}
+      {(loading || isSaving) && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      )}
     </View>
   );
 }

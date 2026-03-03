@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList, Alert, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList, Alert, Platform, ActivityIndicator } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { useWorkout } from '../context/WorkoutContext';
 import { useRouter } from 'expo-router';
@@ -9,7 +9,7 @@ import { supabase } from '../lib/supabase';
 import { Colors } from '../colors';
 
 export default function CalendarScreen() {
-  const { workouts, routines, addPlannedWorkout, deleteWorkoutLog, loadMoreWorkouts, hasMore } = useWorkout();
+  const { workouts, routines, addPlannedWorkout, deleteWorkoutLog, loadMoreWorkouts, hasMore, loading } = useWorkout();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -270,6 +270,14 @@ export default function CalendarScreen() {
             onEndReached={loadMoreWorkouts}
             onEndReachedThreshold={0.5}
             renderItem={({ item }) => {
+              const dateObj = new Date(item.date);
+              const year = dateObj.getFullYear();
+              const month = dateObj.getMonth() + 1;
+              const day = dateObj.getDate();
+              const days = ['일', '월', '화', '수', '목', '금', '토'];
+              const weekDay = days[dateObj.getDay()];
+              const dateStr = `${year}. ${month}. ${day} (${weekDay})`;
+              
               return (
                 <TouchableOpacity 
                   style={styles.listCard}
@@ -277,7 +285,7 @@ export default function CalendarScreen() {
                 >
                   <View style={styles.listCardHeader}>
                     <Text style={styles.listDate}>
-                      {new Date(item.date).toLocaleDateString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric' }).replace(/\//g, '. ')}
+                      {dateStr}
                     </Text>
                   </View>
                   
@@ -287,9 +295,15 @@ export default function CalendarScreen() {
                     {item.exercises.map((ex, idx) => (
                       <View key={idx} style={styles.listExerciseRow}>
                         <View style={styles.bulletPoint} />
-                        <Text style={styles.listExerciseText}>
-                          <Text style={styles.boldText}>{ex.name}</Text>: {ex.sets.map(s => `${s.weight}kg ${s.reps}회`).join(' * ')} {ex.sets.length > 0 ? `* ${ex.sets.length}세트` : ''}
-                        </Text>
+                        <View style={{flex: 1}}>
+                          <Text style={styles.listExerciseText}>
+                            <Text style={styles.boldText}>{ex.name}</Text>
+                            {ex.sets.length > 0 && <Text style={{color: Colors.textSecondary}}> {ex.sets.length}sets</Text>}
+                          </Text>
+                          <Text style={[styles.listExerciseText, { marginTop: 2 }]}>
+                            {ex.sets.map(s => `${s.weight}kg ${s.reps}회`).join(' * ')}
+                          </Text>
+                        </View>
                       </View>
                     ))}
                   </View>
@@ -347,6 +361,13 @@ export default function CalendarScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Loading Overlay */}
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      )}
     </View>
   );
 }

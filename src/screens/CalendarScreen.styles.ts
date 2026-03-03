@@ -12,6 +12,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
     paddingBottom: 0,
+    marginBottom: 20,
     // Removed background color to blend with container
   },
   headerTitle: {
@@ -142,7 +143,7 @@ export const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 16,
+    gap: 24,
   },
   iconButton: {
     padding: 4,
@@ -275,5 +276,16 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 8,
     elevation: 6,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 9999,
   },
 });

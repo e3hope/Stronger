@@ -170,10 +170,12 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const saveRoutine = async (routine: Routine) => {
+    setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !publicUserId) {
         Alert.alert('Error', '로그인이 필요하거나 사용자 정보를 불러올 수 없습니다.');
+        setLoading(false);
         return;
       }
 
@@ -200,15 +202,18 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error saving routine:', error);
       Alert.alert('Error', 'Failed to save routine');
+      setLoading(false);
     }
   };
 
   const deleteRoutine = async (id: number) => {
+    setLoading(true);
     console.log('[deleteRoutine] called with id:', id, 'publicUserId:', publicUserId);
     // Delete routine from DB
     try {
       if (!publicUserId) {
         Alert.alert('Error', '로그인이 필요합니다.');
+        setLoading(false);
         return;
       }
 
@@ -239,14 +244,17 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error deleting routine:', error);
       Alert.alert('Error', 'Failed to delete routine: ' + (error instanceof Error ? error.message : JSON.stringify(error)));
+      setLoading(false);
     }
   };
 
   const addWorkout = async (workout: WorkoutLog) => {
+    setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !publicUserId) {
         Alert.alert('Error', '로그인이 필요하거나 사용자 정보를 불러올 수 없습니다.');
+        setLoading(false);
         return;
       }
 
@@ -263,13 +271,16 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error saving workout:', error);
       Alert.alert('Error', 'Failed to save workout');
+      setLoading(false);
     }
   };
 
   const updateWorkoutLog = async (workout: WorkoutLog) => {
+    setLoading(true);
     try {
       if (!publicUserId) {
         Alert.alert('Error', '로그인이 필요합니다.');
+        setLoading(false);
         return;
       }
 
@@ -285,13 +296,16 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error updating workout:', error);
       Alert.alert('Error', 'Failed to update workout');
+      setLoading(false);
     }
   };
 
   const deleteWorkoutLog = async (id: number) => {
+    setLoading(true);
     try {
       if (!publicUserId) {
         Alert.alert('Error', '로그인이 필요합니다.');
+        setLoading(false);
         return;
       }
 
@@ -305,19 +319,23 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error deleting workout log:', error);
       Alert.alert('Error', 'Failed to delete workout log');
+      setLoading(false);
     }
   };
 
   const addPlannedWorkout = async (date: string, routineId: number) => {
+    setLoading(true);
     try {
       if (!publicUserId) {
         Alert.alert('Error', '로그인이 필요합니다.');
+        setLoading(false);
         return;
       }
 
       const routine = routines.find(r => r.id === routineId);
       if (!routine) {
         Alert.alert('Error', 'Routine not found');
+        setLoading(false);
         return;
       }
 
@@ -333,6 +351,7 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error('Error adding planned workout:', error);
       Alert.alert('Error', 'Failed to add planned workout');
+      setLoading(false);
     }
   };
 
