@@ -46,9 +46,9 @@ export const styles = StyleSheet.create({
     shadowColor: Colors.primary,
   },
   exerciseInfo: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12, // 세트 리스트와 간격
   },
   exerciseIcon: {
     width: 40,
@@ -194,10 +194,18 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   exerciseNameInput: {
+    flex: 1,
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    padding: 0,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: '#2C2C2C',
+    borderRadius: 8,
+    minHeight: 44,
+    borderWidth: 1,
+    borderColor: '#444',
+    marginRight: 12,
   },
   setsContainer: {
     padding: 12,

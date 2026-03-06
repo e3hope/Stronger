@@ -121,8 +121,8 @@ export default function CalendarScreen() {
   };
 
   const selectRoutine = async (routineId: number) => {
-    await addPlannedWorkout(selectedDate, routineId);
     setModalVisible(false);
+    await addPlannedWorkout(selectedDate, routineId);
   };
 
   const year = currentMonth.getFullYear();

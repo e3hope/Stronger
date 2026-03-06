@@ -339,10 +339,20 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
+      // If date is empty (e.g. from List View), use today's date
+      let targetDate = date;
+      if (!targetDate) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        targetDate = `${year}-${month}-${day}`;
+      }
+
       const { error } = await supabase.from('workout_logs').insert({
         user_id: publicUserId,
         routine_id: routineId,
-        performed_at: date,
+        performed_at: targetDate,
         exercises_log: routine.exercises
       });
 
