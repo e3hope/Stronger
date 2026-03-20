@@ -8,7 +8,7 @@ import { Colors } from '../colors';
 interface DailyDetailScreenProps {
   workout: WorkoutLog | null;
   onBack: () => void;
-  onUpdate?: (workout: WorkoutLog) => Promise<void>;
+  onUpdate?: (workout: WorkoutLog, silent?: boolean) => Promise<void>;
   onDelete?: (id: number) => Promise<void>;
   loading?: boolean;
 }
@@ -21,12 +21,43 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
   const memoInputRef = useRef<TextInput>(null);
   const scrollViewRef = useRef<ScrollView>(null);
   const memoLayoutY = useRef<number>(0);
+  
+  const isMounted = useRef(false);
+  const lastSavedState = useRef(JSON.stringify(workout));
 
   useEffect(() => {
     if (workout) {
-      setEditedWorkout(workout);
+      // If we received a new workout prop (e.g. from context update), update local state
+      // But we need to be careful not to overwrite user edits if they are newer?
+      // Since we are auto-saving, the context should eventually match local state.
+      // But if we switch to a different workout ID, we MUST update.
+      if (workout.id !== editedWorkout.id) {
+          setEditedWorkout(workout);
+          lastSavedState.current = JSON.stringify(workout);
+      }
     }
   }, [workout]);
+
+  // Auto-save
+  useEffect(() => {
+      if (!isMounted.current) {
+          isMounted.current = true;
+          return;
+      }
+      
+      const currentState = JSON.stringify(editedWorkout);
+      if (currentState === lastSavedState.current) return;
+
+      const timer = setTimeout(async () => {
+          if (onUpdate) {
+              await onUpdate(editedWorkout, true);
+              lastSavedState.current = currentState;
+          }
+      }, 1000);
+
+      return () => clearTimeout(timer);
+  }, [editedWorkout, onUpdate]);
+
 
   const dateObj = new Date(editedWorkout.date);
   const year = dateObj.getFullYear();
@@ -166,21 +197,6 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
     setEditedWorkout(prev => ({ ...prev, exercises: newExercises }));
   };
 
-  const [isSaving, setIsSaving] = useState(false);
-
-  const handleSave = async () => {
-    if (onUpdate && !isSaving) {
-      try {
-        setIsSaving(true);
-        await onUpdate(editedWorkout);
-        onBack();
-      } catch (error) {
-        console.error('Save failed:', error);
-        setIsSaving(false);
-      }
-    }
-  };
-
   const handleDelete = () => {
     if (!workout || !onDelete) return;
     
@@ -215,9 +231,8 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
               <Ionicons name="trash-outline" size={24} color="#ff4444" />
             </TouchableOpacity>
           )}
-          <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>Save</Text>
-          </TouchableOpacity>
+          {/* Auto-save enabled, no manual save button needed */}
+          <View style={{ width: 40 }} />
         </View>
       </View>
 
@@ -400,7 +415,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
       </View>
 
       {/* Loading Overlay */}
-      {(loading || isSaving) && (
+      {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color={Colors.primary} />
         </View>

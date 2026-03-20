@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Modal, FlatList, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Routine, Exercise } from '../types';
@@ -7,7 +7,7 @@ import { Colors } from '../colors';
 
 interface RoutineDetailScreenProps {
   routine: Routine | null;
-  onSave: (r: Routine) => void;
+  onSave: (r: Routine) => Promise<Routine | void | undefined>;
   onBack: () => void;
 }
 
@@ -15,7 +15,48 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
   const [name, setName] = useState(routine?.name || '');
   const [exercises, setExercises] = useState<Exercise[]>(routine?.exercises || []);
   
-  // State for set count dropdown (modal) - removed as we use buttons now
+  const isMounted = useRef(false);
+  const lastSavedState = useRef(JSON.stringify({ name: routine?.name || '', exercises: routine?.exercises || [] }));
+
+  useEffect(() => {
+    if (routine) {
+      // Only update local state if the ID changes (e.g. new routine created)
+      // or if the content is significantly different (e.g. external update)
+      // For now, we trust local state over props while editing to prevent overwrites
+      // EXCEPT when the ID changes (e.g. -1 -> 123)
+      if (routine.id !== (JSON.parse(lastSavedState.current).id || -1)) {
+          // If ID changed, we might want to sync, but usually we just want to track the new ID
+      }
+    }
+  }, [routine]);
+
+  // Handle auto-save
+  useEffect(() => {
+    if (!isMounted.current) {
+      isMounted.current = true;
+      return;
+    }
+
+    const currentState = JSON.stringify({ name, exercises });
+    if (currentState === lastSavedState.current) return;
+
+    const timer = setTimeout(async () => {
+      if (!name.trim()) return;
+
+      const routineToSave = {
+        id: routine?.id || -1,
+        name,
+        exercises,
+        tags: [],
+      };
+
+      await onSave(routineToSave);
+      lastSavedState.current = JSON.stringify({ name, exercises });
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [name, exercises, routine?.id, onSave]);
+
   const [reorderSelectedId, setReorderSelectedId] = useState<string | null>(null);
 
   const handleAddExercise = () => {
@@ -154,20 +195,6 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
     setExercises(newExercises);
   };
 
-  const handleSave = () => {
-    if (!name.trim()) {
-      Alert.alert('Error', 'Please enter a routine name');
-      return;
-    }
-    // @ts-ignore: ID is number but using temp string for new routine logic in context
-    onSave({
-      id: routine?.id || -1, // -1 means new routine
-      name,
-      exercises,
-      tags: [],
-    });
-  };
-
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -176,9 +203,8 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Routine Details</Text>
-        <TouchableOpacity onPress={handleSave} style={styles.saveButton}>
-          <Text style={styles.saveButtonText}>Save</Text>
-        </TouchableOpacity>
+        {/* Auto-save enabled, no manual save button needed */}
+        <View style={{ width: 40 }} /> 
       </View>
 
       <ScrollView style={styles.content}>

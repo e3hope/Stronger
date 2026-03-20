@@ -15,8 +15,13 @@ export default function RoutineDetailRoute() {
     : routines.find(r => r.id === Number(id)) || null;
 
   const handleSave = async (updatedRoutine: Routine) => {
-    await saveRoutine(updatedRoutine);
-    router.back();
+    // Auto-save silently
+    const saved = await saveRoutine(updatedRoutine, true);
+    
+    // If it was a new routine, redirect to the real ID so future saves are updates
+    if (id === 'new' && saved?.id) {
+      router.setParams({ id: saved.id.toString() });
+    }
   };
 
   return (

@@ -8,10 +8,10 @@ interface WorkoutContextType {
   workouts: WorkoutLog[];
   loading: boolean;
   hasMore: boolean;
-  saveRoutine: (routine: Routine) => Promise<void>;
+  saveRoutine: (routine: Routine, silent?: boolean) => Promise<Routine | undefined>;
   deleteRoutine: (id: number) => Promise<void>;
   addWorkout: (workout: WorkoutLog) => Promise<void>;
-  updateWorkoutLog: (workout: WorkoutLog) => Promise<void>;
+  updateWorkoutLog: (workout: WorkoutLog, silent?: boolean) => Promise<void>;
   deleteWorkoutLog: (id: number) => Promise<void>;
   addPlannedWorkout: (date: string, routineId: number) => Promise<void>;
   refreshData: () => Promise<void>;
@@ -169,40 +169,71 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     fetchData();
   }, []);
 
-  const saveRoutine = async (routine: Routine) => {
-    setLoading(true);
+  const saveRoutine = async (routine: Routine, silent = false): Promise<Routine | undefined> => {
+    if (!silent) setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !publicUserId) {
         Alert.alert('Error', '로그인이 필요하거나 사용자 정보를 불러올 수 없습니다.');
-        setLoading(false);
+        if (!silent) setLoading(false);
         return;
       }
 
       // ID가 0이거나 음수이면 새 루틴으로 간주
       const isNew = !routine.id || routine.id < 0;
 
+      let savedRoutine: Routine | undefined;
+
       if (isNew) {
-        const { error } = await supabase.from('routines').insert({
+        const { data, error } = await supabase.from('routines').insert({
           user_id: publicUserId, // Use Integer ID
           name: routine.name,
           exercises_detail: routine.exercises
-        });
+        })
+        .select()
+        .single();
+
         if (error) throw error;
+        
+        if (data) {
+          savedRoutine = {
+            id: data.id,
+            user_id: data.user_id,
+            name: data.name,
+            exercises: data.exercises_detail,
+            tags: []
+          };
+          
+          if (silent) {
+            setRoutines(prev => [savedRoutine!, ...prev]);
+          }
+        }
       } else {
         const { error } = await supabase.from('routines').update({
           name: routine.name,
           exercises_detail: routine.exercises,
           updated_at: new Date().toISOString()
         }).eq('id', routine.id);
+        
         if (error) throw error;
+        
+        savedRoutine = routine;
+        if (silent) {
+           setRoutines(prev => prev.map(r => r.id === routine.id ? routine : r));
+        }
       }
 
-      await fetchData();
+      if (!silent) {
+        await fetchData();
+      }
+      
+      return savedRoutine;
     } catch (error) {
       console.error('Error saving routine:', error);
-      Alert.alert('Error', 'Failed to save routine');
-      setLoading(false);
+      if (!silent) Alert.alert('Error', 'Failed to save routine');
+      if (!silent) setLoading(false);
+    } finally {
+      if (!silent) setLoading(false);
     }
   };
 
@@ -275,12 +306,12 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateWorkoutLog = async (workout: WorkoutLog) => {
-    setLoading(true);
+  const updateWorkoutLog = async (workout: WorkoutLog, silent = false) => {
+    if (!silent) setLoading(true);
     try {
       if (!publicUserId) {
         Alert.alert('Error', '로그인이 필요합니다.');
-        setLoading(false);
+        if (!silent) setLoading(false);
         return;
       }
 
@@ -292,11 +323,18 @@ export function WorkoutProvider({ children }: { children: React.ReactNode }) {
       }).eq('id', workout.id);
 
       if (error) throw error;
-      await fetchData();
+      
+      if (silent) {
+         setWorkouts(prev => prev.map(w => w.id === workout.id ? workout : w));
+      } else {
+         await fetchData();
+      }
     } catch (error) {
       console.error('Error updating workout:', error);
-      Alert.alert('Error', 'Failed to update workout');
-      setLoading(false);
+      if (!silent) Alert.alert('Error', 'Failed to update workout');
+      if (!silent) setLoading(false);
+    } finally {
+      if (!silent) setLoading(false);
     }
   };
 
