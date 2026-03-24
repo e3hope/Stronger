@@ -339,9 +339,9 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
             }
             contentContainerStyle={{ 
               padding: 16, 
-              paddingBottom: 100 
+              paddingBottom: 350 
             }}
-            keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps="always"
           />
         </KeyboardAvoidingView>
       )}

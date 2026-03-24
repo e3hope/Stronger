@@ -399,9 +399,9 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
             }
             contentContainerStyle={{ 
               padding: 16, 
-              paddingBottom: 100 
+              paddingBottom: 350 
             }}
-            keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps="always"
           />
         </KeyboardAvoidingView>
       )}
