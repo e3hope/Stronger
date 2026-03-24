@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert, Modal, FlatList, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Alert, Platform, KeyboardAvoidingView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
 import { Routine, Exercise } from '../types';
 import { styles } from './RoutineDetailScreen.styles';
 import { Colors } from '../colors';
+import WebDraggableList from '../components/WebDraggableList';
 
 interface RoutineDetailScreenProps {
   routine: Routine | null;
@@ -17,13 +19,11 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
   
   const isMounted = useRef(false);
   const lastSavedState = useRef(JSON.stringify({ name: routine?.name || '', exercises: routine?.exercises || [] }));
+  // @ts-ignore
+  const flatListRef = useRef<DraggableFlatList<Exercise>>(null);
 
   useEffect(() => {
     if (routine) {
-      // Only update local state if the ID changes (e.g. new routine created)
-      // or if the content is significantly different (e.g. external update)
-      // For now, we trust local state over props while editing to prevent overwrites
-      // EXCEPT when the ID changes (e.g. -1 -> 123)
       if (routine.id !== (JSON.parse(lastSavedState.current).id || -1)) {
           // If ID changed, we might want to sync, but usually we just want to track the new ID
       }
@@ -57,8 +57,6 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
     return () => clearTimeout(timer);
   }, [name, exercises, routine?.id, onSave]);
 
-  const [reorderSelectedId, setReorderSelectedId] = useState<string | null>(null);
-
   const handleAddExercise = () => {
     const newEx: Exercise = {
       id: Math.random().toString(36).substr(2, 9),
@@ -72,7 +70,6 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
 
   const deleteExercise = (id: string) => {
     setExercises(prev => prev.filter(ex => ex.id !== id));
-    setReorderSelectedId(prev => (prev === id ? null : prev));
   };
 
   const removeExercise = (id: string) => {
@@ -160,40 +157,133 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
     }));
   };
 
-  const syncSetValues = (exId: string) => {
-    setExercises(exercises.map(ex => {
-      if (ex.id === exId) {
-        if (ex.sets.length === 0) return ex;
-        
-        // Use the first set as the source
-        const sourceSet = ex.sets[0];
-        
-        return {
-          ...ex,
-          sets: ex.sets.map((s, index) => {
-            // Skip the first set (it's the source)
-            if (index === 0) return s;
-            return { ...s, weight: sourceSet.weight, reps: sourceSet.reps };
-          })
-        };
-      }
-      return ex;
-    }));
-  };
+  const renderHeader = () => (
+    <View style={styles.section}>
+      <Text style={styles.label}>Routine Name</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="e.g. Leg Day Blast"
+        placeholderTextColor="#666"
+        value={name}
+        onChangeText={setName}
+      />
+      <View style={styles.divider} />
+      <Text style={styles.label}>Exercise List ({exercises.length})</Text>
+    </View>
+  );
 
-  const moveExercise = (id: string, direction: 'up' | 'down') => {
-    const index = exercises.findIndex(e => e.id === id);
-    if (index === -1) return;
-    if (direction === 'up' && index === 0) return;
-    if (direction === 'down' && index === exercises.length - 1) return;
+  const renderExerciseItem = ({ item, drag, isActive }: RenderItemParams<Exercise>) => (
+    <ScaleDecorator>
+      <View 
+        style={[
+          styles.exerciseCard, 
+          isActive && { 
+            borderColor: Colors.primary, 
+            borderWidth: 1, 
+            elevation: 5, 
+            shadowOpacity: 0.3, 
+            zIndex: 100,
+            ...(Platform.OS === 'web' ? { zIndex: 999 } : {})
+          },
+          Platform.OS === 'web' && ({ touchAction: 'none' } as any)
+        ]}
+      >
+        <View 
+          style={[
+            styles.exerciseHeader,
+            isActive && { backgroundColor: Colors.blueLight }
+          ]}
+        >
+          <View style={styles.exerciseTitleRow}>
+            <TouchableOpacity 
+              style={[
+                styles.reorderHandle,
+                Platform.OS === 'web' && ({ cursor: isActive ? 'grabbing' : 'grab', touchAction: 'none' } as any)
+              ]}
+              onLongPress={Platform.OS === 'web' ? undefined : drag}
+              onPressIn={Platform.OS === 'web' ? drag : undefined}
+              delayLongPress={Platform.OS === 'web' ? 0 : 100}
+              activeOpacity={0.7}
+            >
+              <Ionicons
+                name="reorder-three"
+                size={22}
+                color={isActive ? Colors.primary : "#888"}
+              />
+            </TouchableOpacity>
+            <View style={styles.exerciseInfo}>
+              <TextInput
+                style={styles.exerciseNameInput}
+                value={item.name}
+                onChangeText={(text) => updateExercise(item.id, { name: text })}
+                editable={!isActive}
+              />
+            </View>
+          </View>
+          
+          <TouchableOpacity onPress={() => removeExercise(item.id)} style={styles.exerciseDeleteButton}>
+            <Ionicons name="close" size={18} color="#f44336" />
+          </TouchableOpacity>
+        </View>
 
-    const newExercises = [...exercises];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    
-    // Swap
-    [newExercises[index], newExercises[targetIndex]] = [newExercises[targetIndex], newExercises[index]];
-    setExercises(newExercises);
-  };
+        <View style={styles.setsContainer}>
+          <View style={styles.setHeaderRow}>
+            <Text style={[styles.setHeaderText, styles.setHeaderTextFixed]}>SET</Text>
+            <Text style={[styles.setHeaderText, styles.setHeaderTextFlex]}>KG</Text>
+            <Text style={[styles.setHeaderText, styles.setHeaderTextFlex]}>REPS</Text>
+            <View style={styles.headerSpacer} />
+          </View>
+          {item.sets.map((set, idx) => (
+            <View key={set.id} style={styles.setRow}>
+              <View style={styles.setIndexContainer}>
+                {idx === 0 ? (
+                  <View style={styles.setControlContainer}>
+                    <TouchableOpacity 
+                      style={styles.setControlButton}
+                      onPress={() => updateSetCount(item.id, Math.max(1, item.sets.length - 1))}
+                    >
+                      <Ionicons name="remove" size={16} color="white" />
+                    </TouchableOpacity>
+                    <Text style={styles.setCountText}>1</Text>
+                    <TouchableOpacity 
+                      style={styles.setControlButton}
+                      onPress={() => updateSetCount(item.id, item.sets.length + 1)}
+                    >
+                      <Ionicons name="add" size={16} color="white" />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <Text style={styles.setNumber}>{idx + 1}</Text>
+                )}
+              </View>
+              <TextInput
+                style={[styles.setInput, styles.setInputLayout]} 
+                keyboardType="numeric"
+                value={set.weight === 0 ? '' : set.weight.toString()}
+                placeholder="0"
+                placeholderTextColor="#666"
+                onChangeText={(text) => handleSetInputChange(item.id, set.id, 'weight', text)}
+              />
+              <TextInput
+                style={[styles.setInput, styles.setInputLayout]} 
+                keyboardType="numeric"
+                value={set.reps === 0 ? '' : set.reps.toString()}
+                placeholder="0"
+                placeholderTextColor="#666"
+                onChangeText={(text) => handleSetInputChange(item.id, set.id, 'reps', text)}
+              />
+              <TouchableOpacity  
+                style={styles.removeSetButton}
+                onPress={() => removeSet(item.id, set.id)}
+              >
+                {idx !== 0 && <Ionicons name="close" size={20} color="#666" />}
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      </View>
+    </ScaleDecorator>
+  );
 
   return (
     <View style={styles.container}>
@@ -207,158 +297,54 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
         <View style={{ width: 40 }} /> 
       </View>
 
-      <ScrollView style={styles.content}>
-        {/* Routine Name Section */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Routine Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="e.g. Leg Day Blast"
-            placeholderTextColor="#666"
-            value={name}
-            onChangeText={setName}
-          />
-        </View>
-
-        <View style={styles.divider} />
-
-        {/* Exercises List */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Exercise List ({exercises.length})</Text>
-          {exercises.map((ex, index) => (
-            <View 
-              key={ex.id} 
-              style={[
-                styles.exerciseCard, 
-                reorderSelectedId === ex.id && { borderColor: Colors.primary, borderWidth: 1 }
-              ]}
-            >
-              <View 
-                style={[
-                  styles.exerciseHeader,
-                  reorderSelectedId === ex.id && { backgroundColor: Colors.blueLight }
-                ]}
-              >
-                <View style={styles.exerciseTitleRow}>
-                  <TouchableOpacity 
-                    style={styles.reorderHandle}
-                    onPress={() => setReorderSelectedId(prev => prev === ex.id ? null : ex.id)}
-                    activeOpacity={0.7}
-                  >
-                    <Ionicons
-                      name={reorderSelectedId === ex.id ? "swap-vertical" : "reorder-three"}
-                      size={22}
-                      color={reorderSelectedId === ex.id ? Colors.primary : "#888"}
-                    />
-                  </TouchableOpacity>
-                  <View style={styles.exerciseInfo}>
-                    <TextInput
-                      style={styles.exerciseNameInput}
-                      value={ex.name}
-                      onChangeText={(text) => updateExercise(ex.id, { name: text })}
-                      editable={reorderSelectedId !== ex.id} // Disable editing name while reordering
-                    />
-                                      </View>
-                </View>
-                
-                {reorderSelectedId === ex.id ? (
-                  <View style={styles.reorderActions}>
-                    <TouchableOpacity 
-                      onPress={() => moveExercise(ex.id, 'up')} 
-                      style={[styles.moveButton, { opacity: index === 0 ? 0.3 : 1 }]}
-                      disabled={index === 0}
-                    >
-                      <Ionicons name="arrow-up" size={20} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                      onPress={() => moveExercise(ex.id, 'down')} 
-                      style={[styles.moveButton, { opacity: index === exercises.length - 1 ? 0.3 : 1 }]}
-                      disabled={index === exercises.length - 1}
-                    >
-                      <Ionicons name="arrow-down" size={20} color={Colors.primary} />
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                      onPress={() => setReorderSelectedId(null)} 
-                      style={styles.confirmButton}
-                    >
-                      <Ionicons name="checkmark" size={16} color="white" />
-                    </TouchableOpacity>
-                  </View>
-                ) : (
-                  <TouchableOpacity onPress={() => removeExercise(ex.id)} style={styles.exerciseDeleteButton}>
-                    <Ionicons name="close" size={18} color="#f44336" />
-                  </TouchableOpacity>
-                )}
-              </View>
-
-              <View style={styles.setsContainer}>
-                <View style={styles.setHeaderRow}>
-                  <Text style={[styles.setHeaderText, styles.setHeaderTextFixed]}>SET</Text>
-                  <Text style={[styles.setHeaderText, styles.setHeaderTextFlex]}>KG</Text>
-                  <Text style={[styles.setHeaderText, styles.setHeaderTextFlex]}>REPS</Text>
-                  <View style={styles.headerSpacer} />
-                </View>
-                {ex.sets.map((set, idx) => (
-                  <View key={set.id} style={styles.setRow}>
-                    <View style={styles.setIndexContainer}>
-                      {idx === 0 ? (
-                        <View style={styles.setControlContainer}>
-                          <TouchableOpacity 
-                            style={styles.setControlButton}
-                            onPress={() => updateSetCount(ex.id, Math.max(1, ex.sets.length - 1))}
-                          >
-                            <Ionicons name="remove" size={16} color="white" />
-                          </TouchableOpacity>
-                          <Text style={styles.setCountText}>1</Text>
-                          <TouchableOpacity 
-                            style={styles.setControlButton}
-                            onPress={() => updateSetCount(ex.id, ex.sets.length + 1)}
-                          >
-                            <Ionicons name="add" size={16} color="white" />
-                          </TouchableOpacity>
-                        </View>
-                      ) : (
-                        <Text style={styles.setNumber}>{idx + 1}</Text>
-                      )}
-                    </View>
-                    <TextInput
-                      style={[styles.setInput, styles.setInputLayout]} 
-                      keyboardType="numeric"
-                      value={set.weight === 0 ? '' : set.weight.toString()}
-                      placeholder="0"
-                      placeholderTextColor="#666"
-                      onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'weight', text)}
-                    />
-                    <TextInput
-                      style={[styles.setInput, styles.setInputLayout]} 
-                      keyboardType="numeric"
-                      value={set.reps === 0 ? '' : set.reps.toString()}
-                      placeholder="0"
-                      placeholderTextColor="#666"
-                      onChangeText={(text) => handleSetInputChange(ex.id, set.id, 'reps', text)}
-                    />
-                    <TouchableOpacity  
-                      style={styles.removeSetButton}
-                      onPress={() => removeSet(ex.id, set.id)}
-                    >
-                      {idx !== 0 && <Ionicons name="close" size={20} color="#666" />}
-                    </TouchableOpacity>
-                  </View>
-                ))}
-              </View>
+      {Platform.OS === 'web' ? (
+        <WebDraggableList
+          data={exercises}
+          onDragEnd={(data) => setExercises(data)}
+          updateExercise={updateExercise}
+          removeExercise={removeExercise}
+          handleSetInputChange={handleSetInputChange}
+          updateSetCount={updateSetCount}
+          removeSet={removeSet}
+          ListHeaderComponent={renderHeader()}
+          ListEmptyComponent={
+            <View style={{ marginTop: 20 }}>
+              <TouchableOpacity style={styles.emptyStateButton} onPress={handleAddExercise}>
+                <Ionicons name="fitness" size={40} color="#666" />
+                <Text style={styles.emptyStateText}>Add your first exercise</Text>
+              </TouchableOpacity>
             </View>
-          ))}
-
-          {exercises.length === 0 && (
-            <TouchableOpacity style={styles.emptyStateButton} onPress={handleAddExercise}>
-              <Ionicons name="fitness" size={40} color="#666" />
-              <Text style={styles.emptyStateText}>Add your first exercise</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        <View style={styles.footerSpacer} /> 
-      </ScrollView>
+          }
+        />
+      ) : (
+        <KeyboardAvoidingView 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardAvoiding}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        >
+          <DraggableFlatList
+            ref={flatListRef}
+            data={exercises}
+            onDragEnd={({ data }) => setExercises(data)}
+            keyExtractor={(item) => item.id}
+            renderItem={renderExerciseItem}
+            ListHeaderComponent={renderHeader}
+            ListEmptyComponent={
+              <View style={{ marginTop: 20 }}>
+                <TouchableOpacity style={styles.emptyStateButton} onPress={handleAddExercise}>
+                  <Ionicons name="fitness" size={40} color="#666" />
+                  <Text style={styles.emptyStateText}>Add your first exercise</Text>
+                </TouchableOpacity>
+              </View>
+            }
+            contentContainerStyle={{ 
+              padding: 16, 
+              paddingBottom: 100 
+            }}
+            keyboardShouldPersistTaps="handled"
+          />
+        </KeyboardAvoidingView>
+      )}
 
       {/* Floating Action Button for Add Exercise */}
       <View style={styles.fabContainer}>

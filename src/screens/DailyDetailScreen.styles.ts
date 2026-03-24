@@ -309,20 +309,6 @@ export const styles = StyleSheet.create({
   keyboardAvoiding: {
     flex: 1,
   },
-  reorderActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  moveButton: {
-    padding: 8,
-  },
-  confirmButton: {
-    padding: 6,
-    backgroundColor: Colors.primary,
-    borderRadius: 4,
-    marginLeft: 4,
-  },
   headerSpacer: {
     width: 30,
   },

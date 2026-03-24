@@ -1,3 +1,5 @@
+import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { WorkoutProvider } from '../src/context/WorkoutContext';
 import { StatusBar } from 'expo-status-bar';
@@ -57,12 +59,14 @@ export default function RootLayout() {
   }
 
   return (
-    <WorkoutProvider>
-      <StatusBar style="light" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#121212' } }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-      </Stack>
-    </WorkoutProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <WorkoutProvider>
+        <StatusBar style="light" />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#121212' } }}>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ headerShown: false }} />
+        </Stack>
+      </WorkoutProvider>
+    </GestureHandlerRootView>
   );
 }
