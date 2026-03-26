@@ -328,7 +328,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
             onDragEnd={({ data }) => setExercises(data)}
             keyExtractor={(item) => item.id}
             renderItem={renderExerciseItem}
-            ListHeaderComponent={renderHeader}
+            ListHeaderComponent={renderHeader()}
             ListEmptyComponent={
               <View style={{ marginTop: 20 }}>
                 <TouchableOpacity style={styles.emptyStateButton} onPress={handleAddExercise}>

@@ -388,7 +388,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
             onDragEnd={({ data }) => setEditedWorkout(prev => ({ ...prev, exercises: data }))}
             keyExtractor={(item) => item.id}
             renderItem={renderExerciseItem}
-            ListHeaderComponent={renderHeader}
+            ListHeaderComponent={renderHeader()}
             ListEmptyComponent={
               <View style={{ marginTop: 20 }}>
                 <TouchableOpacity style={styles.emptyStateButton} onPress={handleAddExercise}>

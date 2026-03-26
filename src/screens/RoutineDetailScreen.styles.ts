@@ -10,15 +10,14 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    padding: 16,
+    paddingBottom: 0,
+    marginBottom: 20,
     backgroundColor: '#121212',
   },
   headerTitle: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
   },
   iconButton: {
@@ -293,5 +292,8 @@ export const styles = StyleSheet.create({
   },
   headerSpacer: {
     width: 30,
+  },
+  keyboardAvoiding: {
+    flex: 1,
   },
 });
