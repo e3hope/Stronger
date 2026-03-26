@@ -203,6 +203,16 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
     }
   };
 
+  const handleManualSave = async () => {
+    if (onUpdate) {
+      await onUpdate(editedWorkout, false); // false = not silent, might show success message/feedback depending on onUpdate implementation
+      lastSavedState.current = JSON.stringify(editedWorkout);
+      if (Platform.OS !== 'web') {
+        Alert.alert('저장 완료', '기록이 저장되었습니다.', [{ text: '확인' }]);
+      }
+    }
+  };
+
   const renderHeader = () => (
     <Pressable 
       style={styles.memoSection} 
@@ -348,12 +358,14 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{dateStr}</Text>
         <View style={styles.headerActions}>
+          <TouchableOpacity onPress={handleManualSave} style={styles.saveButton}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
           {onDelete && (
             <TouchableOpacity onPress={handleDelete} style={[styles.iconButton, styles.deleteActionButton]}>
               <Ionicons name="trash-outline" size={24} color="#ff4444" />
             </TouchableOpacity>
           )}
-          <View style={{ width: 40 }} />
         </View>
       </View>
 

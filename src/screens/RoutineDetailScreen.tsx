@@ -157,6 +157,27 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
     }));
   };
 
+  const handleManualSave = async () => {
+    if (!name.trim()) {
+      Alert.alert('오류', '루틴 이름을 입력해주세요.');
+      return;
+    }
+
+    const routineToSave = {
+      id: routine?.id || -1,
+      name,
+      exercises,
+      tags: [],
+    };
+
+    await onSave(routineToSave);
+    lastSavedState.current = JSON.stringify({ name, exercises });
+    
+    if (Platform.OS !== 'web') {
+      Alert.alert('저장 완료', '루틴이 저장되었습니다.', [{ text: '확인' }]);
+    }
+  };
+
   const renderHeader = () => (
     <View style={styles.section}>
       <Text style={styles.label}>Routine Name</Text>
@@ -292,9 +313,10 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
         <TouchableOpacity onPress={onBack} style={styles.iconButton}>
           <Ionicons name="arrow-back" size={24} color="white" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Routine Details</Text>
-        {/* Auto-save enabled, no manual save button needed */}
-        <View style={{ width: 40 }} /> 
+        <Text style={styles.headerTitle}>{routine?.id ? 'Edit Routine' : 'New Routine'}</Text>
+        <TouchableOpacity onPress={handleManualSave} style={styles.saveButton}>
+          <Text style={styles.saveButtonText}>Save</Text>
+        </TouchableOpacity>
       </View>
 
       {Platform.OS === 'web' ? (

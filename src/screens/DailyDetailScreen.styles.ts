@@ -301,9 +301,10 @@ export const styles = StyleSheet.create({
   headerActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
   },
   deleteActionButton: {
-    marginRight: 8,
+    marginRight: 0,
   },
   keyboardAvoiding: {
     flex: 1,
