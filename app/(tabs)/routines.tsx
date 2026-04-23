@@ -1,1 +1,1 @@
-export { default } from '../../src/screens/RoutineListScreen';
+export { default } from '../../src/features/routines/RoutineListScreen';

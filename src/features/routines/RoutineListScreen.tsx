@@ -1,34 +1,31 @@
 import React, { useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, Platform } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useWorkout } from '../context/WorkoutContext';
-import { Routine } from '../types';
+import { useRoutines } from './RoutinesContext';
+import { Routine } from '../../types';
 import { styles } from './RoutineListScreen.styles';
-import { Colors } from '../colors';
+import { Colors } from '../../colors';
+import { confirm } from '../../shared/utils/confirm';
 
 export default function RoutineListScreen() {
-  const { routines, refreshData, deleteRoutine } = useWorkout();
+  const { routines, refresh, deleteRoutine } = useRoutines();
   const router = useRouter();
 
   useFocusEffect(
     useCallback(() => {
-      refreshData();
-    }, [])
+      refresh();
+    }, [refresh])
   );
 
   const handleDelete = async (id: number) => {
-    if (Platform.OS === 'web') {
-      // @ts-ignore
-      if (window.confirm('정말 이 루틴을 삭제하시겠습니까?')) {
-        await deleteRoutine(id);
-      }
-    } else {
-      Alert.alert('루틴 삭제', '정말 이 루틴을 삭제하시겠습니까?', [
-        { text: '취소', style: 'cancel' },
-        { text: '삭제', style: 'destructive', onPress: async () => await deleteRoutine(id) }
-      ]);
-    }
+    const ok = await confirm({
+      title: '루틴 삭제',
+      message: '정말 이 루틴을 삭제하시겠습니까?',
+      confirmLabel: '삭제',
+      destructive: true,
+    });
+    if (ok) await deleteRoutine(id);
   };
 
   const renderItem = ({ item }: { item: Routine }) => (

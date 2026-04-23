@@ -1,15 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList, Alert, Platform, ActivityIndicator } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList, Alert, ActivityIndicator } from 'react-native';
 import { Calendar } from 'react-native-calendars';
-import { useWorkout } from '../context/WorkoutContext';
+import { useRoutines } from '../routines/RoutinesContext';
+import { useWorkouts } from './WorkoutsContext';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { styles } from './CalendarScreen.styles';
-import { supabase } from '../lib/supabase';
-import { Colors } from '../colors';
+import { supabase } from '../../api/client';
+import { Colors } from '../../colors';
+import { confirm } from '../../shared/utils/confirm';
 
 export default function CalendarScreen() {
-  const { workouts, routines, addPlannedWorkout, deleteWorkoutLog, loadMoreWorkouts, hasMore, loading } = useWorkout();
+  const { routines } = useRoutines();
+  const {
+    workouts,
+    addPlannedWorkout,
+    deleteWorkoutLog,
+    loadMore: loadMoreWorkouts,
+    loading,
+  } = useWorkouts();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -36,85 +45,64 @@ export default function CalendarScreen() {
     }
   };
 
-  const handleLogout = () => {
-    if (Platform.OS === 'web') {
-      // @ts-ignore
-      if (window.confirm('정말 로그아웃 하시겠습니까?')) {
-        performLogout();
-      }
-    } else {
-      Alert.alert('로그아웃', '정말 로그아웃 하시겠습니까?', [
-        { text: '취소', style: 'cancel' },
-        {
-          text: '로그아웃',
-          style: 'destructive',
-          onPress: performLogout,
-        },
-      ]);
-    }
+  const handleLogout = async () => {
+    const ok = await confirm({
+      title: '로그아웃',
+      message: '정말 로그아웃 하시겠습니까?',
+      confirmLabel: '로그아웃',
+      destructive: true,
+    });
+    if (ok) performLogout();
   };
-  
-  const handleDeleteWorkout = async (id: number) => {
-    const performDelete = async () => {
-      await deleteWorkoutLog(id);
-    };
 
-    if (Platform.OS === 'web') {
-      // @ts-ignore
-      if (window.confirm('이 운동 기록을 삭제하시겠습니까?')) {
-        performDelete();
-      }
-    } else {
-      Alert.alert('기록 삭제', '이 운동 기록을 삭제하시겠습니까?', [
-        { text: '취소', style: 'cancel' },
-        { text: '삭제', style: 'destructive', onPress: performDelete }
-      ]);
-    }
+  const handleDeleteWorkout = async (id: number) => {
+    const ok = await confirm({
+      title: '기록 삭제',
+      message: '이 운동 기록을 삭제하시겠습니까?',
+      confirmLabel: '삭제',
+      destructive: true,
+    });
+    if (ok) await deleteWorkoutLog(id);
   };
 
   // Merge workouts into markedDates
-  const markedDates: any = {};
+  const markedDates = useMemo(() => {
+    const marks: Record<string, any> = {};
+    workouts.forEach(workout => {
+      const date = workout.date.split('T')[0];
+      marks[date] = {
+        marked: true,
+        dotColor: Colors.primary,
+      };
+    });
+    if (selectedDate) {
+      marks[selectedDate] = {
+        ...marks[selectedDate],
+        selected: true,
+        selectedColor: Colors.primary,
+      };
+    }
+    return marks;
+  }, [workouts, selectedDate]);
 
-  workouts.forEach(workout => {
-    const date = workout.date.split('T')[0];
-    markedDates[date] = { 
-      marked: true, 
-      dotColor: Colors.primary 
-    };
-  });
-
-  if (selectedDate) {
-    markedDates[selectedDate] = { 
-      ...markedDates[selectedDate], 
-      selected: true, 
-      selectedColor: Colors.primary 
-    };
-  }
-
-  const selectedWorkouts = workouts.filter(
-    w => w.date.split('T')[0] === selectedDate
+  const selectedWorkouts = useMemo(
+    () => workouts.filter(w => w.date.split('T')[0] === selectedDate),
+    [workouts, selectedDate],
   );
 
-  const handleAddRoutine = () => {
+  const sortedWorkouts = useMemo(
+    () => [...workouts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+    [workouts],
+  );
+
+  const handleAddRoutine = async () => {
     if (routines.length === 0) {
-      if (Platform.OS === 'web') {
-        // @ts-ignore
-        if (window.confirm('저장된 루틴이 없습니다. 루틴을 추가하시겠습니까?')) {
-          router.push('/routines');
-        }
-      } else {
-        Alert.alert(
-          '루틴 없음',
-          '저장된 루틴이 없습니다.\n루틴을 추가하시겠습니까?',
-          [
-            { text: '취소', style: 'cancel' },
-            {
-              text: '이동',
-              onPress: () => router.push('/routines'),
-            },
-          ]
-        );
-      }
+      const ok = await confirm({
+        title: '루틴 없음',
+        message: '저장된 루틴이 없습니다.\n루틴을 추가하시겠습니까?',
+        confirmLabel: '이동',
+      });
+      if (ok) router.push('/routines');
       return;
     }
     setModalVisible(true);
@@ -264,7 +252,7 @@ export default function CalendarScreen() {
       ) : (
         <>
           <FlatList
-            data={[...workouts].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())}
+            data={sortedWorkouts}
             keyExtractor={item => item.id.toString()}
             contentContainerStyle={styles.listContainer}
             onEndReached={loadMoreWorkouts}

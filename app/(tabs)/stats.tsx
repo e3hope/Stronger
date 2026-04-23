@@ -1,1 +1,1 @@
-export { default } from '../../src/screens/StatsScreen';
+export { default } from '../../src/features/stats/StatsScreen';

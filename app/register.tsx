@@ -1,1 +1,1 @@
-export { default } from '../src/screens/Register';
+export { default } from '../src/features/auth/RegisterScreen';

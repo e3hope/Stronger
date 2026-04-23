@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Alert, ActivityIndicator } from 'react-native';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../api/client';
 import { useRouter } from 'expo-router';
 import { styles } from './LoginScreen.styles';
-import { Colors } from '../colors';
+import { Colors } from '../../colors';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');

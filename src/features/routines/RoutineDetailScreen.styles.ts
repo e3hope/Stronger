@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { Colors } from '../colors';
+import { Colors } from '../../colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -19,118 +19,10 @@ export const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
-    marginHorizontal: 10,
-  },
-  dateSelector: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   iconButton: {
     padding: 8,
   },
-  content: {
-    flex: 1,
-  },
-  exerciseList: {
-    paddingHorizontal: 16,
-    paddingBottom: 40,
-  },
-  exerciseCard: {
-    backgroundColor: '#1E1E1E',
-    borderRadius: 16,
-    padding: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    shadowColor: Colors.primary,
-  },
-  exerciseInfo: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  exerciseIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 12,
-  },
-  exerciseText: {
-    flex: 1,
-  },
-  exerciseName: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  exerciseMeta: {
-    color: Colors.primary,
-    fontSize: 10,
-    marginTop: 2,
-  },
-  setRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#333',
-  },
-  setIndexBox: {
-    width: 30,
-    alignItems: 'center',
-  },
-  setIndexText: {
-    color: '#888',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  setValueBox: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  setValueText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  setValueLabel: {
-    color: Colors.primary,
-    fontSize: 10,
-    marginLeft: 4,
-  },
-  memoSection: {
-    padding: 16,
-    backgroundColor: '#1E1E1E',
-    marginTop: 16,
-    marginBottom: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.primary,
-    shadowColor: Colors.primary,
-  },
-  memoTitle: {
-    color: '#888',
-    fontSize: 12,
-    fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  memoText: {
-    color: 'white',
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  memoInput: {
-    color: 'white',
-    fontSize: 14,
-    lineHeight: 20,
-    minHeight: 80,
-    textAlignVertical: 'top',
-  },
-  // Editing Styles
   saveButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -140,6 +32,9 @@ export const styles = StyleSheet.create({
   saveButtonText: {
     color: Colors.primary,
     fontWeight: 'bold',
+  },
+  content: {
+    flex: 1,
   },
   section: {
     padding: 16,
@@ -157,10 +52,64 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     fontSize: 16,
   },
+  deleteButton: {
+    backgroundColor: Colors.dangerLight,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: Colors.dangerMedium,
+  },
+  deleteButtonText: {
+    color: '#ff4444',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  tagContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 12,
+    gap: 8,
+  },
+  tag: {
+    backgroundColor: Colors.primaryMedium,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: Colors.primaryBorder,
+  },
+  tagText: {
+    color: Colors.primary,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  addTagButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#666',
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   divider: {
     height: 1,
     backgroundColor: '#333',
     marginVertical: 8,
+  },
+  exerciseCard: {
+    position: 'relative', // Ensure zIndex works correctly
+    backgroundColor: '#1E1E1E',
+    borderRadius: 12,
+    marginBottom: 16,
+    // overflow: 'hidden', // Removed to allow dropdown to overflow
+    borderWidth: 1,
+    borderColor: 'transparent',
   },
   exerciseHeader: {
     flexDirection: 'row',
@@ -192,19 +141,15 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  exerciseNameInput: {
+  exerciseInfo: {
+    marginLeft: 12,
     flex: 1,
+  },
+  exerciseNameInput: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: '#2C2C2C',
-    borderRadius: 8,
-    minHeight: 44,
-    borderWidth: 1,
-    borderColor: '#444',
-    marginRight: 12,
+    padding: 0,
   },
   setsContainer: {
     padding: 12,
@@ -215,15 +160,24 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   setHeaderText: {
-    color: Colors.primary,
+    color: '#666',
     fontSize: 10,
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  setRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
   },
   setNumber: {
     color: '#888',
     textAlign: 'center',
     fontWeight: 'bold',
+  },
+  syncButton: {
+    marginLeft: 4,
+    padding: 4,
   },
   setInput: {
     backgroundColor: '#2C2C2C',
@@ -238,7 +192,7 @@ export const styles = StyleSheet.create({
   emptyStateButton: {
     padding: 32,
     borderWidth: 2,
-    borderColor: Colors.primary,
+    borderColor: '#333',
     borderStyle: 'dashed',
     borderRadius: 12,
     alignItems: 'center',
@@ -246,7 +200,7 @@ export const styles = StyleSheet.create({
     gap: 8,
   },
   emptyStateText: {
-    color: Colors.primary,
+    color: '#666',
     fontSize: 16,
   },
   fabContainer: {
@@ -275,6 +229,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     marginLeft: 8,
   },
+  // Set Control Styles
   setControlContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -298,19 +253,19 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  headerActions: {
+  reorderActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 4,
   },
-  deleteActionButton: {
-    marginRight: 0,
+  moveButton: {
+    padding: 8,
   },
-  keyboardAvoiding: {
-    flex: 1,
-  },
-  headerSpacer: {
-    width: 30,
+  confirmButton: {
+    padding: 6,
+    backgroundColor: Colors.primary,
+    borderRadius: 4,
+    marginLeft: 4,
   },
   setIndexContainer: {
     width: 100,
@@ -335,15 +290,10 @@ export const styles = StyleSheet.create({
   setHeaderTextFlex: {
     flex: 1,
   },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 9999,
+  headerSpacer: {
+    width: 30,
+  },
+  keyboardAvoiding: {
+    flex: 1,
   },
 });

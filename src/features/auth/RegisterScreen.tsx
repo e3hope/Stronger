@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { supabase } from '../lib/supabase';
+import { supabase } from '../../api/client';
 import { styles } from './LoginScreen.styles';
-import { Colors } from '../colors';
+import { Colors } from '../../colors';
 
 export default function Register() {
   const [email, setEmail] = useState('');
