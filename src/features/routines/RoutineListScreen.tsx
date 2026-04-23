@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoutines } from './RoutinesContext';
@@ -51,7 +52,7 @@ export default function RoutineListScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <FlatList
         data={routines}
         renderItem={renderItem}
@@ -63,14 +64,14 @@ export default function RoutineListScreen() {
       />
 
       <View style={styles.fabContainer}>
-        <TouchableOpacity 
-          style={styles.fab} 
+        <TouchableOpacity
+          style={styles.fab}
           onPress={() => router.push('/routine/new')}
         >
           <Ionicons name="add" size={24} color={Colors.background} />
           <Text style={styles.fabText}>New Routine</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

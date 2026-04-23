@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, FlatList, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import { useRoutines } from '../routines/RoutinesContext';
 import { useWorkouts } from './WorkoutsContext';
@@ -118,7 +119,7 @@ export default function CalendarScreen() {
   const currentMonthString = `${year}-${String(month).padStart(2, '0')}-01`;
 
   return (
-    <View style={viewMode === 'list' ? styles.containerListMode : styles.container}>
+    <SafeAreaView style={viewMode === 'list' ? styles.containerListMode : styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Stronger</Text>
@@ -356,6 +357,6 @@ export default function CalendarScreen() {
           <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert, Platform, KeyboardAvoidingView, Pressable } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
 import { Routine, Exercise } from '../../types';
@@ -17,6 +18,7 @@ interface RoutineDetailScreenProps {
 }
 
 export default function RoutineDetailScreen({ routine, onSave, onBack }: RoutineDetailScreenProps) {
+  const insets = useSafeAreaInsets();
   const [name, setName] = useState(routine?.name || '');
   const [exercises, setExercises] = useState<Exercise[]>(routine?.exercises || []);
   
@@ -230,7 +232,7 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.iconButton}>
@@ -293,12 +295,12 @@ export default function RoutineDetailScreen({ routine, onSave, onBack }: Routine
       )}
 
       {/* Floating Action Button for Add Exercise */}
-      <View style={styles.fabContainer}>
+      <View style={[styles.fabContainer, { bottom: 24 + insets.bottom }]}>
         <TouchableOpacity style={styles.fab} onPress={handleAddExercise}>
           <Ionicons name="add" size={24} color="#121212" />
           <Text style={styles.fabText}>Add Exercise</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Alert, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { supabase } from '../../api/client';
 import { useRouter } from 'expo-router';
 import { styles } from './LoginScreen.styles';
@@ -40,7 +41,7 @@ export default function LoginScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Text style={styles.title}>Stronger</Text>
       <View style={styles.inputContainer}>
         <TextInput
@@ -76,6 +77,6 @@ export default function LoginScreen() {
           <Text style={[styles.buttonText, styles.outlineButtonText]}>회원가입</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

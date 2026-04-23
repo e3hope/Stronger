@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, TextInput, Alert, Platform, KeyboardAvoidingView, Pressable, ActivityIndicator } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import DraggableFlatList, { ScaleDecorator, RenderItemParams } from 'react-native-draggable-flatlist';
 import { WorkoutLog, Exercise } from '../../types';
@@ -21,6 +22,7 @@ interface DailyDetailScreenProps {
 export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete, loading }: DailyDetailScreenProps) {
   if (!workout) return null;
 
+  const insets = useSafeAreaInsets();
   const [editedWorkout, setEditedWorkout] = useState<WorkoutLog>(workout);
   const memoInputRef = useRef<TextInput>(null);
   // DraggableFlatList는 제네릭 forwardRef 컴포넌트 — ref 타입 명시가 복잡하여 any로 수용.
@@ -267,7 +269,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.iconButton}>
           <Ionicons name="arrow-back" size={24} color="white" />
@@ -335,7 +337,7 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
         </KeyboardAvoidingView>
       )}
 
-      <View style={styles.fabContainer}>
+      <View style={[styles.fabContainer, { bottom: 24 + insets.bottom }]}>
         <TouchableOpacity style={styles.fab} onPress={handleAddExercise}>
           <Ionicons name="add" size={24} color="#121212" />
           <Text style={styles.fabText}>Add Exercise</Text>
@@ -347,6 +349,6 @@ export default function DailyDetailScreen({ workout, onBack, onUpdate, onDelete,
           <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

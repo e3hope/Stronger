@@ -1,5 +1,6 @@
 import 'react-native-gesture-handler';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -11,13 +12,15 @@ import { WorkoutsProvider } from '../src/features/workouts/WorkoutsContext';
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <RoutinesProvider>
-          <WorkoutsProvider>
-            <AuthGate />
-          </WorkoutsProvider>
-        </RoutinesProvider>
-      </AuthProvider>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <RoutinesProvider>
+            <WorkoutsProvider>
+              <AuthGate />
+            </WorkoutsProvider>
+          </RoutinesProvider>
+        </AuthProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
