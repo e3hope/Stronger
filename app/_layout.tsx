@@ -8,6 +8,7 @@ import { View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from '../src/features/auth/AuthContext';
 import { RoutinesProvider } from '../src/features/routines/RoutinesContext';
 import { WorkoutsProvider } from '../src/features/workouts/WorkoutsContext';
+import { MealsProvider } from '../src/features/meals/MealsContext';
 
 export default function RootLayout() {
   return (
@@ -16,7 +17,9 @@ export default function RootLayout() {
         <AuthProvider>
           <RoutinesProvider>
             <WorkoutsProvider>
-              <AuthGate />
+              <MealsProvider>
+                <AuthGate />
+              </MealsProvider>
             </WorkoutsProvider>
           </RoutinesProvider>
         </AuthProvider>
@@ -70,6 +73,14 @@ function AuthGate() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="meal-plan/edit"
+          options={{ presentation: 'modal', headerShown: false }}
+        />
+        <Stack.Screen
+          name="meal-log/[date]/[type]"
+          options={{ presentation: 'modal', headerShown: false }}
+        />
       </Stack>
     </>
   );
