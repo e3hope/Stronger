@@ -1,10 +1,8 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useColorScheme } from 'react-native';
+import { Colors } from '../../src/colors';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
@@ -23,6 +21,7 @@ export default function TabLayout() {
           backgroundColor: '#121212',
           borderTopColor: '#333',
         },
+        tabBarActiveTintColor: Colors.primary,
       }}>
       <Tabs.Screen
         name="calendar"
